@@ -1,0 +1,47 @@
+{
+  "name": "control-acceso",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "build:frontend": "tsc -p public/src/tsconfig.json",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "*",
+    "better-sqlite3": "*",
+    "cors": "*",
+    "express": "*",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "*",
+    "swagger-jsdoc": "*",
+    "swagger-ui-express": "*",
+    "uuid": "*"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "*",
+    "@types/better-sqlite3": "*",
+    "@types/cors": "*",
+    "@types/express": "*",
+    "@types/jest": "*",
+    "@types/jsonwebtoken": "*",
+    "@types/node": "*",
+    "@types/supertest": "*",
+    "@types/swagger-jsdoc": "*",
+    "@types/swagger-ui-express": "*",
+    "@types/uuid": "*",
+    "jest": "*",
+    "nodemon": "*",
+    "supertest": "*",
+    "ts-jest": "*",
+    "ts-node": "*",
+    "typescript": "*"
+  }
+}

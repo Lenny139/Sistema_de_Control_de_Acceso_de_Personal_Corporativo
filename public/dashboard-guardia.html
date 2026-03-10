@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Guardia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+  </head>
+  <body>
+    <header class="container-fluid py-3 border-bottom" style="background-color: var(--color-surface)">
+      <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="fw-bold app-title mb-0">ACME Corp</div>
+          <span id="current-checkpoint" class="badge text-bg-primary">Punto: Entrada Principal</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span id="guard-name" class="fw-semibold">Guardia: guardia1</span>
+          <button id="theme-toggle" class="btn btn-outline-secondary btn-sm" type="button">🌙/☀️</button>
+          <select id="language-select" class="form-select form-select-sm" style="width: 90px">
+            <option value="es" selected>ES</option>
+            <option value="en">EN</option>
+          </select>
+          <button id="logout-btn" class="btn btn-danger btn-sm" type="button" data-i18n="btn.logout">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container py-4">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <section class="card card-surface p-3 mb-4">
+            <h2 class="h5 mb-3" data-i18n="guard.quickRegister">Registro rápido</h2>
+            <div class="mb-3 position-relative">
+              <label for="employee-search" class="form-label" data-i18n="guard.searchEmployee">Buscar empleado por ID o nombre</label>
+              <input id="employee-search" type="text" class="form-control" autocomplete="off" />
+              <div id="employee-search-results" class="list-group position-absolute w-100 mt-1"></div>
+            </div>
+
+            <div id="selected-employee-card" class="border rounded p-3 mb-3 d-none">
+              <div class="d-flex gap-3 align-items-center">
+                <img src="https://via.placeholder.com/72" alt="Empleado" class="rounded-circle" width="72" height="72" />
+                <div>
+                  <h3 id="selected-employee-name" class="h6 mb-1"></h3>
+                  <p id="selected-employee-department" class="mb-2 text-muted"></p>
+                  <span id="selected-employee-status" class="badge"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="checkpoint-select" class="form-label" data-i18n="guard.checkpoint">Punto de control</label>
+              <select id="checkpoint-select" class="form-select">
+                <option value="">Seleccionar</option>
+                <option value="checkpoint-entrada">Entrada Principal</option>
+                <option value="checkpoint-parking">Entrada Parking</option>
+              </select>
+            </div>
+
+            <div class="d-grid gap-2 mb-3">
+              <button id="btn-checkin" class="btn btn-success btn-lg d-none" type="button" data-i18n="btn.checkIn">REGISTRAR ENTRADA</button>
+              <button id="btn-checkout" class="btn btn-danger btn-lg d-none" type="button" data-i18n="btn.checkOut">REGISTRAR SALIDA</button>
+            </div>
+
+            <div class="mb-3">
+              <label for="observaciones-input" class="form-label" data-i18n="guard.observaciones">Observaciones (opcional)</label>
+              <textarea id="observaciones-input" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div id="guardia-feedback" class="alert d-none" role="alert"></div>
+          </section>
+
+          <section class="card card-surface p-3">
+            <h2 class="h5 mb-3" data-i18n="guard.visitors">Visitantes</h2>
+            <form id="visitante-form" class="row g-2 mb-3">
+              <div class="col-md-6"><input id="visitante-nombre" class="form-control" placeholder="Nombre" required /></div>
+              <div class="col-md-6"><input id="visitante-apellido" class="form-control" placeholder="Apellido" required /></div>
+              <div class="col-md-6"><input id="visitante-documento" class="form-control" placeholder="Documento" required /></div>
+              <div class="col-md-6"><input id="visitante-empresa" class="form-control" placeholder="Empresa" /></div>
+              <div class="col-md-6"><input id="visitante-anfitrion" class="form-control" placeholder="Empleado anfitrión" required /></div>
+              <div class="col-md-6">
+                <select id="visitante-checkpoint" class="form-select" required>
+                  <option value="">Punto de control</option>
+                  <option value="checkpoint-entrada">Entrada Principal</option>
+                  <option value="checkpoint-parking">Entrada Parking</option>
+                </select>
+              </div>
+              <div class="col-12 d-grid">
+                <button class="btn btn-primary" type="submit" data-i18n="guard.registerVisitor">Registrar Entrada Visitante</button>
+              </div>
+            </form>
+
+            <h3 class="h6" data-i18n="guard.visitorsPresent">Visitantes presentes</h3>
+            <ul id="visitantes-presentes-list" class="list-group"></ul>
+          </section>
+        </div>
+
+        <div class="col-lg-6">
+          <section class="card card-surface p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h2 id="total-personas-title" class="h5 mb-0">Personas en las instalaciones: 0</h2>
+              <button id="btn-refresh-now" class="btn btn-outline-primary btn-sm" type="button" data-i18n="guard.refreshNow">Actualizar ahora</button>
+            </div>
+            <p id="last-update-text" class="text-muted small mb-3">Actualizado hace 0 segundos</p>
+
+            <div class="mb-3">
+              <h3 class="h6">Empleados presentes</h3>
+              <ul id="empleados-presentes-list" class="list-group"></ul>
+            </div>
+
+            <div>
+              <h3 class="h6">Visitantes presentes</h3>
+              <ul id="visitantes-dashboard-list" class="list-group"></ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <div id="guardia-toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

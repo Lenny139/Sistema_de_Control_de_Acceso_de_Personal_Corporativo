@@ -1,0 +1,738 @@
+{
+  "info": {
+    "name": "Parcial - Validación de Requerimientos (Control de Acceso)",
+    "description": "Colección para validar requerimientos del parcial vía API (/api/1.0). Incluye setup de tokens/fixtures y pruebas automáticas de criterios funcionales y RBAC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Setup",
+      "item": [
+        {
+          "name": "Init Dates",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date();",
+                  "const today = now.toISOString().slice(0, 10);",
+                  "const yesterdayDate = new Date(now);",
+                  "yesterdayDate.setDate(yesterdayDate.getDate() - 1);",
+                  "const yesterday = yesterdayDate.toISOString().slice(0, 10);",
+                  "pm.environment.set('today', today);",
+                  "pm.environment.set('yesterday', yesterday);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Fechas inicializadas', function () {",
+                  "  pm.expect(pm.environment.get('today')).to.be.a('string').and.not.empty;",
+                  "  pm.expect(pm.environment.get('yesterday')).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/docs.json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "docs.json"]
+            }
+          }
+        },
+        {
+          "name": "Login Guardia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login guardia 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token guardia guardado', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.accessToken).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('token_guardia', body.accessToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{guardia_username}}\",\n  \"password\": \"{{guardia_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Gerente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login gerente 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token gerente guardado', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.accessToken).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('token_gerente', body.accessToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{gerente_username}}\",\n  \"password\": \"{{gerente_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Fixture Employee (Gerente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar empleados 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Empleado fixture seteado', function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.be.an('array').and.not.empty;",
+                  "  pm.environment.set('empleado_id', data[0].id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gerente}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Get Fixture Checkpoint (Guardia)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar checkpoints 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Checkpoint fixture seteado', function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.be.an('array').and.not.empty;",
+                  "  pm.environment.set('checkpoint_id', data[0].id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/checkpoints",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "checkpoints"]
+            }
+          }
+        },
+        {
+          "name": "Ensure Employee OUT (best-effort)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Estado inicial válido para continuar (201 o 409)', function () {",
+                  "  pm.expect([201, 409]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\",\n  \"observaciones\": \"setup ensure out\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-out"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Criterio 1 (Check-in + presentes + conflicto)",
+      "item": [
+        {
+          "name": "C1 - Buscar empleado por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Search 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Empleado aparece en resultados', function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.be.an('array');",
+                  "  const found = data.some(function (item) { return item.id === pm.environment.get('empleado_id'); });",
+                  "  pm.expect(found).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/employees/search?q={{empleado_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "employees", "search"],
+              "query": [
+                { "key": "q", "value": "{{empleado_id}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C1 - Check-in OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Check-in crea registro (201)', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Tipo ENTRADA', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.tipo).to.eql('ENTRADA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\",\n  \"observaciones\": \"criterio 1 checkin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "C1 - Dashboard presentes incluye empleado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Presentes 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Empleado está presente', function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.be.an('array');",
+                  "  const found = data.some(function (item) { return item.empleadoId === pm.environment.get('empleado_id'); });",
+                  "  pm.expect(found).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/presentes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "presentes"]
+            }
+          }
+        },
+        {
+          "name": "C1 - Segundo check-in devuelve 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Segundo check-in en conflicto', function () {",
+                  "  pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\",\n  \"observaciones\": \"criterio 1 conflicto\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-in"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Criterio 2 (Check-out + conflicto)",
+      "item": [
+        {
+          "name": "C2 - Check-out OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Check-out crea registro (201)', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Tipo SALIDA', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.tipo).to.eql('SALIDA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\",\n  \"observaciones\": \"criterio 2 checkout\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-out"]
+            }
+          }
+        },
+        {
+          "name": "C2 - Dashboard presentes NO incluye empleado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Presentes 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Empleado ya no está presente', function () {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data).to.be.an('array');",
+                  "  const found = data.some(function (item) { return item.empleadoId === pm.environment.get('empleado_id'); });",
+                  "  pm.expect(found).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/presentes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "presentes"]
+            }
+          }
+        },
+        {
+          "name": "C2 - Check-out sin entrada devuelve 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Conflicto al salir sin entrada', function () {",
+                  "  pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\",\n  \"observaciones\": \"criterio 2 conflicto\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-out",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-out"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Criterios 3 y 4 (Reportes)",
+      "item": [
+        {
+          "name": "C3 - Reporte Asistencia (Gerente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte asistencia 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Estructura reporte asistencia válida', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.tipo).to.eql('ASISTENCIA');",
+                  "  pm.expect(body.data).to.be.an('array');",
+                  "});",
+                  "pm.test('Modo estricto (opcional): horas esperadas 09:00-17:00', function () {",
+                  "  const strict = pm.environment.get('strictReports') === 'true';",
+                  "  if (!strict) {",
+                  "    pm.expect(true).to.eql(true);",
+                  "    return;",
+                  "  }",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.length).to.be.greaterThan(0);",
+                  "  pm.expect(body.data[0].horaEntrada).to.eql('09:00');",
+                  "  pm.expect(body.data[0].horaSalida).to.eql('17:00');",
+                  "  pm.expect(Number(body.data[0].horasTrabajadas)).to.eql(8);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gerente}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/reports/asistencia?empleadoId={{empleado_id}}&fechaInicio={{yesterday}}&fechaFin={{yesterday}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "reports", "asistencia"],
+              "query": [
+                { "key": "empleadoId", "value": "{{empleado_id}}" },
+                { "key": "fechaInicio", "value": "{{yesterday}}" },
+                { "key": "fechaFin", "value": "{{yesterday}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C4 - Reporte Puntualidad (Gerente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte puntualidad 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Estructura reporte puntualidad válida', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.tipo).to.eql('PUNTUALIDAD');",
+                  "  pm.expect(body.data).to.be.an('array');",
+                  "});",
+                  "pm.test('Modo estricto (opcional): TARDANZA 15 min', function () {",
+                  "  const strict = pm.environment.get('strictReports') === 'true';",
+                  "  if (!strict) {",
+                  "    pm.expect(true).to.eql(true);",
+                  "    return;",
+                  "  }",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.length).to.be.greaterThan(0);",
+                  "  pm.expect(body.data[0].estadoPuntualidad).to.eql('TARDANZA');",
+                  "  pm.expect(Number(body.data[0].minutosRetraso)).to.eql(15);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gerente}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/reports/puntualidad?empleadoId={{empleado_id}}&fechaInicio={{today}}&fechaFin={{today}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "reports", "puntualidad"],
+              "query": [
+                { "key": "empleadoId", "value": "{{empleado_id}}" },
+                { "key": "fechaInicio", "value": "{{today}}" },
+                { "key": "fechaFin", "value": "{{today}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Criterio 5 (RBAC)",
+      "item": [
+        {
+          "name": "C5 - Guardia no puede ver reporte asistencia (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Forbidden para guardia', function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_guardia}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/reports/asistencia?fechaInicio={{today}}&fechaFin={{today}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "reports", "asistencia"],
+              "query": [
+                { "key": "fechaInicio", "value": "{{today}}" },
+                { "key": "fechaFin", "value": "{{today}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C5 - Gerente no puede hacer check-in (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Forbidden para gerente', function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_gerente}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"puntoControlId\": \"{{checkpoint_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/access-records/check-in",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "access-records", "check-in"]
+            }
+          }
+        },
+        {
+          "name": "C5 - Ruta protegida sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unauthorized sin token', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Criterio 6 (Swagger y documentación)",
+      "item": [
+        {
+          "name": "C6 - Swagger UI responde",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Swagger UI disponible (200/301/302)', function () {",
+                  "  pm.expect([200, 301, 302]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "docs"]
+            }
+          }
+        },
+        {
+          "name": "C6 - Swagger JSON contiene paths clave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Docs JSON 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Paths críticos documentados', function () {",
+                  "  const spec = pm.response.json();",
+                  "  pm.expect(spec.paths).to.have.property('/api/1.0/auth/login');",
+                  "  pm.expect(spec.paths).to.have.property('/api/1.0/access-records/check-in');",
+                  "  pm.expect(spec.paths).to.have.property('/api/1.0/access-records/check-out');",
+                  "  pm.expect(spec.paths).to.have.property('/api/1.0/reports/asistencia');",
+                  "  pm.expect(spec.paths).to.have.property('/api/1.0/reports/puntualidad');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/1.0/docs.json",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "1.0", "docs.json"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "guardia_username", "value": "guardia1" },
+    { "key": "guardia_password", "value": "guardia123" },
+    { "key": "gerente_username", "value": "gerente" },
+    { "key": "gerente_password", "value": "gerente123" },
+    { "key": "strictReports", "value": "false" }
+  ]
+}

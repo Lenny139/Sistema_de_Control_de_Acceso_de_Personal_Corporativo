@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@500;700&family=PT+Sans:wght@400;700&display=swap');
+
+:root {
+  --color-primary: #0D47A1;
+  --color-secondary: #E3F2FD;
+  --color-accent-entrada: #4CAF50;
+  --color-accent-salida: #F44336;
+  --color-text: #212121;
+  --color-bg: #FFFFFF;
+  --color-surface: #F7F9FC;
+  --color-border: #DDE3EA;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #90CAF9;
+    --color-secondary: #1E3A5F;
+    --color-accent-entrada: #66BB6A;
+    --color-accent-salida: #EF5350;
+    --color-text: #FFFFFF;
+    --color-bg: #121212;
+    --color-surface: #1E1E1E;
+    --color-border: #2D2D2D;
+  }
+}
+
+[data-theme='dark'] {
+  --color-primary: #90CAF9;
+  --color-secondary: #1E3A5F;
+  --color-accent-entrada: #66BB6A;
+  --color-accent-salida: #EF5350;
+  --color-text: #FFFFFF;
+  --color-bg: #121212;
+  --color-surface: #1E1E1E;
+  --color-border: #2D2D2D;
+}
+
+[data-theme='light'] {
+  --color-primary: #0D47A1;
+  --color-secondary: #E3F2FD;
+  --color-accent-entrada: #4CAF50;
+  --color-accent-salida: #F44336;
+  --color-text: #212121;
+  --color-bg: #FFFFFF;
+  --color-surface: #F7F9FC;
+  --color-border: #DDE3EA;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'PT Sans', Arial, sans-serif;
+}
+
+.app-title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-primary);
+  font-family: 'Exo 2', 'PT Sans', Arial, sans-serif;
+}
