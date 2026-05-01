@@ -6,7 +6,8 @@
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
-    "build:frontend": "tsc -p public/src/tsconfig.json",
+    "build:frontend": "tsc --project public/src/tsconfig.json",
+    "dev:frontend": "tsc --project public/src/tsconfig.json --watch",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },
