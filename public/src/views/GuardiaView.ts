@@ -1,113 +1,275 @@
-import { Empleado } from '../models/Empleado.model';
-import { EstadoEdificio } from '../models/RegistroAcceso.model';
+import { Empleado } from '../models/Empleado.model.js';
+import { EstadoEdificio } from '../models/RegistroAcceso.model.js';
 
 export class GuardiaView {
-  public render(): void {}
+  // Callbacks que el Controller inyecta
+  private onSearch?: (query: string) => Promise<void>;
+  private onSelect?: (empleadoId: string, nombre: string) => void;
+  private onCheckIn?: (empleadoId: string, puntoControlId: string, obs?: string) => Promise<void>;
+  private onCheckOut?: (empleadoId: string, puntoControlId: string) => Promise<void>;
+  private onRegistrarVisitante?: (datos: Record<string, string>) => Promise<void>;
+  private onSalidaVisitante?: (visitanteId: string) => Promise<void>;
+  private onRefresh?: () => Promise<void>;
 
-  public renderEmpleadoBuscado(empleado: Empleado, estaPresente: boolean): void {
-    const card = document.getElementById('selected-employee-card');
-    const name = document.getElementById('selected-employee-name');
-    const department = document.getElementById('selected-employee-department');
-    const status = document.getElementById('selected-employee-status');
-    const btnCheckIn = document.getElementById('btn-checkin');
-    const btnCheckOut = document.getElementById('btn-checkout');
+  private selectedEmpleadoId: string | null = null;
 
-    if (!card || !name || !department || !status || !btnCheckIn || !btnCheckOut) {
-      return;
+  public render(): void {
+    // 1. BIND busqueda: al escribir >= 3 chars llama onSearch, oculta si < 3
+    const searchInput = document.getElementById('employee-search') as HTMLInputElement | null;
+    if (searchInput) {
+      let debounceTimer: ReturnType<typeof setTimeout>;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = searchInput.value.trim();
+        if (query.length < 3) {
+          this.clearSearchResults();
+          return;
+        }
+        debounceTimer = setTimeout(() => {
+          void this.onSearch?.(query);
+        }, 300);
+      });
+      // Cierra el dropdown al hacer click fuera
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target as Node)) {
+          this.clearSearchResults();
+        }
+      });
     }
 
-    card.classList.remove('d-none');
-    name.textContent = `${empleado.nombre} ${empleado.apellido}`;
-    department.textContent = empleado.departamento;
-    status.textContent = estaPresente ? 'PRESENTE' : 'AUSENTE';
-    status.className = `badge ${estaPresente ? 'text-bg-success' : 'text-bg-secondary'}`;
+    // 2. BIND check-in/check-out buttons
+    const btnCheckIn = document.getElementById('btn-checkin');
+    const btnCheckOut = document.getElementById('btn-checkout');
+    const obsInput = document.getElementById('observaciones-input') as HTMLTextAreaElement | null;
+    const checkpointSelect = document.getElementById('checkpoint-select') as HTMLSelectElement | null;
 
-    if (estaPresente) {
-      btnCheckIn.classList.add('d-none');
-      btnCheckOut.classList.remove('d-none');
-    } else {
-      btnCheckOut.classList.add('d-none');
-      btnCheckIn.classList.remove('d-none');
+    if (btnCheckIn) {
+      btnCheckIn.addEventListener('click', () => {
+        if (!this.selectedEmpleadoId) return;
+        const puntoControlId = checkpointSelect?.value ?? '';
+        if (!puntoControlId) {
+          this.showError('Selecciona un punto de control');
+          return;
+        }
+        void this.onCheckIn?.(this.selectedEmpleadoId, puntoControlId, obsInput?.value ?? undefined);
+        if (obsInput) obsInput.value = '';
+      });
+    }
+    if (btnCheckOut) {
+      btnCheckOut.addEventListener('click', () => {
+        if (!this.selectedEmpleadoId) return;
+        const puntoControlId = checkpointSelect?.value ?? '';
+        if (!puntoControlId) {
+          this.showError('Selecciona un punto de control');
+          return;
+        }
+        void this.onCheckOut?.(this.selectedEmpleadoId, puntoControlId);
+      });
+    }
+
+    // 3. BIND formulario visitante - prevenir form submit y delegar al callback
+    const visitanteForm = document.getElementById('visitante-form');
+    if (visitanteForm) {
+      visitanteForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nombre = (document.getElementById('visitante-nombre') as HTMLInputElement)?.value ?? '';
+        const apellido = (document.getElementById('visitante-apellido') as HTMLInputElement)?.value ?? '';
+        const documento = (document.getElementById('visitante-documento') as HTMLInputElement)?.value ?? '';
+        const empresa = (document.getElementById('visitante-empresa') as HTMLInputElement)?.value ?? '';
+        const anfitrion = (document.getElementById('visitante-anfitrion') as HTMLInputElement)?.value ?? '';
+        const puntoControlId = checkpointSelect?.value ?? '';
+        if (!nombre || !apellido || !documento || !anfitrion || !puntoControlId) {
+          this.showError('Completa todos los campos requeridos del visitante');
+          return;
+        }
+        void this.onRegistrarVisitante?.({
+          nombre,
+          apellido,
+          documentoIdentidad: documento,
+          empresa,
+          empleadoAnfitrionId: anfitrion,
+          puntoControlId,
+        });
+        (visitanteForm as HTMLFormElement).reset();
+      });
+    }
+
+    // 4. BIND boton refresh
+    const refreshBtn =
+      (document.getElementById('btn-refresh-dashboard') as HTMLButtonElement | null) ??
+      (document.getElementById('btn-refresh-now') as HTMLButtonElement | null);
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        void this.onRefresh?.();
+      });
+    }
+
+    // 5. BIND delegado para botones "Registrar Salida" de visitantes (lista dinamica)
+    const visitantesPresentesList = document.getElementById('visitantes-presentes-list');
+    if (visitantesPresentesList) {
+      visitantesPresentesList.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const btn = target.closest('[data-visitante-id]') as HTMLElement | null;
+        if (btn?.dataset.visitanteId) {
+          void this.onSalidaVisitante?.(btn.dataset.visitanteId);
+        }
+      });
     }
   }
 
+  // Metodos de binding de callbacks (el Controller los llama)
+  public bindSearch(fn: (query: string) => Promise<void>): void {
+    this.onSearch = fn;
+  }
+  public bindSelect(fn: (id: string, nombre: string) => void): void {
+    this.onSelect = fn;
+  }
+  public bindCheckIn(fn: (id: string, puntoControlId: string, obs?: string) => Promise<void>): void {
+    this.onCheckIn = fn;
+  }
+  public bindCheckOut(fn: (id: string, puntoControlId: string) => Promise<void>): void {
+    this.onCheckOut = fn;
+  }
+  public bindRegistrarVisitante(fn: (datos: Record<string, string>) => Promise<void>): void {
+    this.onRegistrarVisitante = fn;
+  }
+  public bindSalidaVisitante(fn: (id: string) => Promise<void>): void {
+    this.onSalidaVisitante = fn;
+  }
+  public bindRefresh(fn: () => Promise<void>): void {
+    this.onRefresh = fn;
+  }
+
+  // renderSearchResults: muestra el dropdown con los resultados
+  public renderSearchResults(empleados: Empleado[]): void {
+    const container = document.getElementById('employee-search-results');
+    if (!container) return;
+    if (!empleados.length) {
+      container.innerHTML = '<div class="list-group-item text-muted">Sin resultados</div>';
+      return;
+    }
+    container.innerHTML = empleados
+      .map(
+        (emp) => `
+      <button type="button"
+        class="list-group-item list-group-item-action"
+        data-emp-id="${emp.id}"
+        data-emp-name="${emp.nombre} ${emp.apellido}">
+        <strong>${emp.codigoEmpleado}</strong> - ${emp.nombre} ${emp.apellido}
+        <span class="text-muted small ms-2">${emp.departamento}</span>
+      </button>
+    `,
+      )
+      .join('');
+
+    // Bind click en cada resultado
+    container.querySelectorAll<HTMLButtonElement>('[data-emp-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const searchInput = document.getElementById('employee-search') as HTMLInputElement | null;
+        if (searchInput) searchInput.value = btn.dataset.empName ?? '';
+        this.clearSearchResults();
+        this.onSelect?.(btn.dataset.empId ?? '', btn.dataset.empName ?? '');
+      });
+    });
+  }
+
+  public clearSearchResults(): void {
+    const container = document.getElementById('employee-search-results');
+    if (container) container.innerHTML = '';
+  }
+
+  // renderEmpleadoBuscado: muestra la tarjeta del empleado seleccionado
+  public renderEmpleadoBuscado(empleado: Empleado, estaPresente: boolean): void {
+    this.selectedEmpleadoId = empleado.id;
+    const card = document.getElementById('selected-employee-card');
+    const name = document.getElementById('selected-employee-name');
+    const dept = document.getElementById('selected-employee-department');
+    const status = document.getElementById('selected-employee-status');
+    const btnIn = document.getElementById('btn-checkin');
+    const btnOut = document.getElementById('btn-checkout');
+    if (!card || !name || !dept || !status || !btnIn || !btnOut) return;
+
+    card.classList.remove('d-none', 'empleado-presente', 'empleado-ausente');
+    card.classList.add(estaPresente ? 'empleado-presente' : 'empleado-ausente');
+    name.textContent = `${empleado.nombre} ${empleado.apellido}`;
+    dept.textContent = `${empleado.departamento} - ${empleado.cargo}`;
+    status.textContent = estaPresente ? 'PRESENTE' : 'AUSENTE';
+    status.className = `badge ${estaPresente ? 'badge-presente' : 'badge-ausente'}`;
+    btnIn.classList.toggle('d-none', estaPresente);
+    btnOut.classList.toggle('d-none', !estaPresente);
+  }
+
+  // renderDashboardPresentes: actualiza la columna derecha en tiempo real
   public renderDashboardPresentes(estado: EstadoEdificio): void {
     const totalTitle = document.getElementById('total-personas-title');
     const lastUpdate = document.getElementById('last-update-text');
     const empleadosList = document.getElementById('empleados-presentes-list');
-    const visitantesList = document.getElementById('visitantes-dashboard-list');
+    const visitantesDashboard = document.getElementById('visitantes-dashboard-list');
     const visitantesPresentesList = document.getElementById('visitantes-presentes-list');
-
-    if (!totalTitle || !lastUpdate || !empleadosList || !visitantesList || !visitantesPresentesList) {
-      return;
-    }
+    if (!totalTitle || !lastUpdate || !empleadosList || !visitantesDashboard || !visitantesPresentesList) return;
 
     totalTitle.textContent = `Personas en las instalaciones: ${estado.totalPresentes}`;
-
     if (estado.lastUpdate) {
-      const seconds = Math.max(0, Math.floor((Date.now() - estado.lastUpdate.getTime()) / 1000));
-      lastUpdate.textContent = `Actualizado hace ${seconds} segundos`;
+      const secs = Math.max(0, Math.floor((Date.now() - estado.lastUpdate.getTime()) / 1000));
+      lastUpdate.textContent =
+        secs < 60
+          ? `Actualizado hace ${secs} segundos`
+          : `Actualizado hace ${Math.floor(secs / 60)} min`;
     }
 
-    empleadosList.innerHTML = estado.presentes
-      .map((item) => {
-        const showAlert = item.minutosEnInstalaciones > 600;
-        const alertBadge = showAlert ? '<span class="badge text-bg-warning ms-2">+10 horas</span>' : '';
+    empleadosList.innerHTML =
+      estado.presentes.length === 0
+        ? '<li class="list-group-item text-muted small">Sin empleados presentes</li>'
+        : estado.presentes
+            .map((item) => {
+              const alerta = item.minutosEnInstalaciones > 600;
+              return `
+            <li class="list-group-item presentes-list-item d-flex justify-content-between align-items-start ${
+              alerta ? 'alerta-prolongada' : ''
+            }">
+              <div>
+                <div class="fw-semibold">${item.nombre}</div>
+                <div class="small text-muted">${item.departamento}</div>
+                <div class="small">Hora ${item.horaIngreso} · ${item.minutosEnInstalaciones} min</div>
+              </div>
+              ${alerta ? '<span class="badge badge-tardanza">+10h</span>' : ''}
+            </li>`;
+            })
+            .join('');
 
-        return `
+    visitantesDashboard.innerHTML =
+      estado.visitantesPresentes.length === 0
+        ? '<li class="list-group-item text-muted small">Sin visitantes</li>'
+        : estado.visitantesPresentes
+            .map(
+              (v) => `
+          <li class="list-group-item presentes-list-item">
+            <div class="fw-semibold">${v.nombre} ${v.apellido}</div>
+            <div class="small text-muted">Anfitrion ID: ${v.empleadoAnfitrionId}</div>
+            <div class="small">Hora ${v.horaEntrada}</div>
+          </li>`,
+            )
+            .join('');
+
+    visitantesPresentesList.innerHTML =
+      estado.visitantesPresentes.length === 0
+        ? '<li class="list-group-item text-muted small">Sin visitantes presentes</li>'
+        : estado.visitantesPresentes
+            .map(
+              (v) => `
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <strong>${item.nombre}</strong>
-              <div class="small text-muted">${item.departamento}</div>
-              <div class="small">Ingreso: ${item.horaIngreso} · Hace ${item.minutosEnInstalaciones} min</div>
-            </div>
-            ${alertBadge}
-          </li>
-        `;
-      })
-      .join('');
-
-    visitantesList.innerHTML = estado.visitantesPresentes
-      .map(
-        (visitante) => `
-          <li class="list-group-item">
-            <strong>${visitante.nombre} ${visitante.apellido}</strong>
-            <div class="small text-muted">Anfitrión: ${visitante.empleadoAnfitrionId}</div>
-            <div class="small">Ingreso: ${visitante.horaEntrada}</div>
-          </li>
-        `,
-      )
-      .join('');
-
-    visitantesPresentesList.innerHTML = estado.visitantesPresentes
-      .map(
-        (visitante) => `
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>${visitante.nombre} ${visitante.apellido}</span>
-            <button class="btn btn-outline-danger btn-sm" data-visitante-id="${visitante.id}">Registrar Salida</button>
-          </li>
-        `,
-      )
-      .join('');
+            <span>${v.nombre} ${v.apellido}</span>
+            <button class="btn btn-outline-danger btn-sm" data-visitante-id="${v.id}">Salida</button>
+          </li>`,
+            )
+            .join('');
   }
 
+  // Notificaciones con Toast
   public showSuccess(mensaje: string): void {
-    const feedback = document.getElementById('guardia-feedback');
-    if (feedback) {
-      feedback.className = 'alert alert-success';
-      feedback.textContent = mensaje;
-    }
-
     this.showToast(mensaje, 'success');
   }
-
   public showError(mensaje: string): void {
-    const feedback = document.getElementById('guardia-feedback');
-    if (feedback) {
-      feedback.className = 'alert alert-danger';
-      feedback.textContent = mensaje;
-    }
-
     this.showToast(mensaje, 'danger');
   }
 
@@ -115,20 +277,21 @@ export class GuardiaView {
     elemento.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
   }
 
-  private showToast(message: string, variant: 'success' | 'danger'): void {
-    const container = document.getElementById('guardia-toast-container');
+  private showToast(message: string, variant: 'success' | 'danger' | 'warning'): void {
+    let container = document.getElementById('guardia-toast-container');
     if (!container) {
-      return;
+      container = document.createElement('div');
+      container.id = 'guardia-toast-container';
+      document.body.appendChild(container);
     }
-
     const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-bg-${variant} border-0 show mb-2`;
+    toast.className = `toast align-items-center text-bg-${variant} border-0 show`;
     toast.role = 'alert';
-    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div></div>`;
+    const icon = variant === 'success' ? 'OK' : variant === 'danger' ? 'X' : '!';
+    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${icon} ${message}</div></div>`;
     container.appendChild(toast);
-
-    window.setTimeout(() => {
+    setTimeout(() => {
       toast.remove();
-    }, 3000);
+    }, 4000);
   }
 }
