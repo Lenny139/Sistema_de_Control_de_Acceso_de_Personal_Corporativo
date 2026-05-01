@@ -1,4 +1,4 @@
-import { AuthStore } from './AuthStore';
+import { AuthStore } from './AuthStore.js';
 
 export class ApiClient {
   private readonly baseUrl = 'http://localhost:3000/api/1.0';

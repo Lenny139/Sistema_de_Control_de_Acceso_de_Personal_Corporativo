@@ -1,6 +1,6 @@
-import { ApiClient } from '../core/ApiClient';
-import { AuthStore } from '../core/AuthStore';
-import { LoginResponse } from '../models/Usuario.model';
+import { ApiClient } from '../core/ApiClient.js';
+import { AuthStore } from '../core/AuthStore.js';
+import { LoginResponse } from '../models/Usuario.model.js';
 
 export class AuthService {
   private readonly api = new ApiClient();

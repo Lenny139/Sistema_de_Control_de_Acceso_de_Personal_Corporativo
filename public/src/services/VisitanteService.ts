@@ -1,5 +1,5 @@
-import { ApiClient } from '../core/ApiClient';
-import { Visitante } from '../models/Visitante.model';
+import { ApiClient } from '../core/ApiClient.js';
+import { Visitante } from '../models/Visitante.model.js';
 
 export interface RegistrarVisitantePayload {
   nombre: string;

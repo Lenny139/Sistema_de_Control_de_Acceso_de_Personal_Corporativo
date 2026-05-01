@@ -1,4 +1,4 @@
-import { AuthStore } from './AuthStore';
+import { AuthStore } from './AuthStore.js';
 
 export class Router {
   private readonly authStore = AuthStore.getInstance();

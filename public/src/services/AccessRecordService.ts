@@ -1,6 +1,6 @@
-import { ApiClient } from '../core/ApiClient';
-import { EstadoPresencia } from '../models/RegistroAcceso.model';
-import { RegistroAcceso } from '../models/RegistroAcceso.model';
+import { ApiClient } from '../core/ApiClient.js';
+import { EstadoPresencia } from '../models/RegistroAcceso.model.js';
+import { RegistroAcceso } from '../models/RegistroAcceso.model.js';
 
 export class AccessRecordService {
   private readonly api = new ApiClient();

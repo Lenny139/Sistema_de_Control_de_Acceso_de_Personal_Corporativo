@@ -1,7 +1,7 @@
-import { EstadoEdificio, EstadoPresencia } from '../models/RegistroAcceso.model';
-import { Visitante } from '../models/Visitante.model';
-import { AccessRecordService } from './AccessRecordService';
-import { VisitanteService } from './VisitanteService';
+import { EstadoEdificio, EstadoPresencia } from '../models/RegistroAcceso.model.js';
+import { Visitante } from '../models/Visitante.model.js';
+import { AccessRecordService } from './AccessRecordService.js';
+import { VisitanteService } from './VisitanteService.js';
 
 export class EstadoEdificioService {
   private static instance: EstadoEdificioService;

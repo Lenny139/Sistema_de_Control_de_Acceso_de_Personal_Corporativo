@@ -1,5 +1,5 @@
-import { ApiClient } from '../core/ApiClient';
-import { Empleado } from '../models/Empleado.model';
+import { ApiClient } from '../core/ApiClient.js';
+import { Empleado } from '../models/Empleado.model.js';
 
 export interface EmpleadoDTO {
   codigoEmpleado: string;

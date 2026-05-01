@@ -1,4 +1,4 @@
-import { ERole, UsuarioAuth } from '../models/Usuario.model';
+import { ERole, UsuarioAuth } from '../models/Usuario.model.js';
 
 type AuthState = {
   token: string | null;

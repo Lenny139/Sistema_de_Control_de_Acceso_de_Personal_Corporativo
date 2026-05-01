@@ -12,3 +12,12 @@ export interface LoginResponse {
   expiresIn: string;
   user: UsuarioAuth;
 }
+
+export interface UsuarioAdmin {
+  id: string;
+  username: string;
+  email: string;
+  role: ERole;
+  activo: boolean;
+  createdAt?: string;
+}

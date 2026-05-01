@@ -1,4 +1,4 @@
-import { ApiClient } from '../core/ApiClient';
+import { ApiClient } from '../core/ApiClient.js';
 
 export interface ReporteParams {
   empleado?: string;
