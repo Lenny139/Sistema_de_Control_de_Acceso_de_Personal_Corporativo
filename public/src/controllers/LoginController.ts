@@ -1,6 +1,6 @@
-import { t } from '../core/i18n';
-import { AuthService } from '../services/AuthService';
-import { LoginView } from '../views/LoginView';
+import { t } from '../core/i18n.js';
+import { AuthService } from '../services/AuthService.js';
+import { LoginView } from '../views/LoginView.js';
 
 export class LoginController {
   constructor(

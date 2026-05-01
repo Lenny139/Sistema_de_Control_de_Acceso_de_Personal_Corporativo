@@ -1,41 +1,68 @@
-import { Empleado } from '../models/Empleado.model';
-import { EstadoEdificio } from '../models/RegistroAcceso.model';
-import { AccessRecordService } from '../services/AccessRecordService';
-import { EmpleadoService } from '../services/EmpleadoService';
-import { EstadoEdificioService } from '../services/EstadoEdificioService';
-import { RegistrarVisitantePayload, VisitanteService } from '../services/VisitanteService';
-import { GuardiaView } from '../views/GuardiaView';
+import { Empleado } from '../models/Empleado.model.js';
+import { EstadoEdificio } from '../models/RegistroAcceso.model.js';
+import { AccessRecordService } from '../services/AccessRecordService.js';
+import { CheckpointService } from '../services/CheckpointService.js';
+import { EmpleadoService } from '../services/EmpleadoService.js';
+import { EstadoEdificioService } from '../services/EstadoEdificioService.js';
+import { RegistrarVisitantePayload, VisitanteService } from '../services/VisitanteService.js';
+import { GuardiaView } from '../views/GuardiaView.js';
 
 export class GuardiaController {
   private readonly estadoEdificioService = EstadoEdificioService.getInstance();
   private readonly empleadoService = new EmpleadoService();
   private readonly accessRecordService = new AccessRecordService();
+  private readonly checkpointService = new CheckpointService();
   private readonly visitanteService = new VisitanteService();
+  private currentEmpleadoId: string | null = null;
+  private lastSearchResults: Empleado[] = [];
 
   constructor(private readonly view: GuardiaView) {
     this.estadoEdificioService.subscribe(this.onEstadoChange);
   }
 
   public init(): void {
+    this.view.bindSearch((query) => this.onEmpleadoSearch(query));
+    this.view.bindSelect((empleadoId, nombre) => void this.onEmpleadoSelect(empleadoId, nombre));
+    this.view.bindCheckIn((empleadoId, puntoControlId, observaciones) =>
+      this.onCheckIn(empleadoId, puntoControlId, observaciones),
+    );
+    this.view.bindCheckOut((empleadoId, puntoControlId) => this.onCheckOut(empleadoId, puntoControlId));
+    this.view.bindRegistrarVisitante((payload) => this.onRegistrarVisitante(payload));
+    this.view.bindSalidaVisitante((visitanteId) => this.onSalidaVisitante(visitanteId));
+    this.view.bindRefresh(() => this.estadoEdificioService.refresh());
     this.view.render();
+    void this.loadCheckpoints();
     void this.estadoEdificioService.refresh();
     this.estadoEdificioService.startAutoRefresh(30);
   }
 
-  public async onEmpleadoSearch(query: string): Promise<Empleado[]> {
-    if (query.trim().length < 3) {
-      return [];
+  public async onEmpleadoSearch(query: string): Promise<void> {
+    try {
+      const results = await this.empleadoService.search(query.trim());
+      this.view.renderSearchResults(results);
+    } catch (error) {
+      this.view.showError(error instanceof Error ? error.message : 'No se pudo buscar el empleado');
     }
-
-    return this.empleadoService.search(query.trim());
   }
 
-  public onEmpleadoSelect(empleado: Empleado): void {
-    const estaPresente = this.estadoEdificioService
-      .getPresentes()
-      .some((presencia) => presencia.empleadoId === empleado.id);
+  public async onEmpleadoSelect(empleadoId: string, nombre: string): Promise<void> {
+    try {
+      const estaPresente = this.estadoEdificioService
+        .getPresentes()
+        .some((presencia) => presencia.empleadoId === empleadoId);
 
-    this.view.renderEmpleadoBuscado(empleado, estaPresente);
+      const empleados = await this.empleadoService.getAll();
+      const empleado = empleados.find((item) => item.id === empleadoId);
+      if (!empleado) {
+        this.view.showError(`No se encontro el empleado ${nombre}`);
+        return;
+      }
+
+      this.currentEmpleadoId = empleadoId;
+      this.view.renderEmpleadoBuscado(empleado, estaPresente);
+    } catch (error) {
+      this.view.showError(error instanceof Error ? error.message : 'No se pudo cargar el empleado');
+    }
   }
 
   public async onCheckIn(
@@ -44,7 +71,13 @@ export class GuardiaController {
     observaciones?: string,
   ): Promise<void> {
     try {
-      await this.accessRecordService.checkIn(empleadoId, puntoControlId, observaciones);
+      const targetEmpleadoId = this.currentEmpleadoId ?? empleadoId;
+      if (!targetEmpleadoId) {
+        this.view.showError('Selecciona un empleado antes de registrar la entrada');
+        return;
+      }
+
+      await this.accessRecordService.checkIn(targetEmpleadoId, puntoControlId, observaciones);
       await this.estadoEdificioService.refresh();
       this.view.showSuccess('Entrada registrada correctamente');
     } catch (error) {
@@ -54,7 +87,13 @@ export class GuardiaController {
 
   public async onCheckOut(empleadoId: string, puntoControlId: string): Promise<void> {
     try {
-      await this.accessRecordService.checkOut(empleadoId, puntoControlId);
+      const targetEmpleadoId = this.currentEmpleadoId ?? empleadoId;
+      if (!targetEmpleadoId) {
+        this.view.showError('Selecciona un empleado antes de registrar la salida');
+        return;
+      }
+
+      await this.accessRecordService.checkOut(targetEmpleadoId, puntoControlId);
       await this.estadoEdificioService.refresh();
       this.view.showSuccess('Salida registrada correctamente');
     } catch (error) {
@@ -62,9 +101,10 @@ export class GuardiaController {
     }
   }
 
-  public async onRegistrarVisitante(datos: RegistrarVisitantePayload): Promise<void> {
+  public async onRegistrarVisitante(datos: RegistrarVisitantePayload | Record<string, string>): Promise<void> {
     try {
-      await this.visitanteService.registrarEntrada(datos);
+      const payload = datos as RegistrarVisitantePayload;
+      await this.visitanteService.registrarEntrada(payload);
       await this.estadoEdificioService.refresh();
       this.view.showSuccess('Entrada de visitante registrada correctamente');
     } catch (error) {
@@ -82,9 +122,34 @@ export class GuardiaController {
     }
   }
 
+  public async onRefresh(): Promise<void> {
+    try {
+      await this.estadoEdificioService.refresh();
+    } catch (error) {
+      this.view.showError(error instanceof Error ? error.message : 'No se pudo actualizar el estado');
+    }
+  }
+
   private readonly onEstadoChange = (estado: EstadoEdificio): void => {
     this.view.renderDashboardPresentes(estado);
   };
+
+  private async loadCheckpoints(): Promise<void> {
+    try {
+      const checkpoints = await this.checkpointService.getAll();
+      const select = document.getElementById('checkpoint-select') as HTMLSelectElement | null;
+      if (!select) {
+        return;
+      }
+
+      select.innerHTML = [
+        '<option value="">Seleccionar punto de control</option>',
+        ...checkpoints.map((cp) => `<option value="${cp.id}">${cp.nombre}</option>`),
+      ].join('');
+    } catch (error) {
+      this.view.showError(error instanceof Error ? error.message : 'No se pudieron cargar los puntos de control');
+    }
+  }
 
   public destroy(): void {
     this.estadoEdificioService.unsubscribe(this.onEstadoChange);
