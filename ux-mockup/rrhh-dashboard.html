@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard RRHH - Sistema de Control de Acceso</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .chart-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--gray-900);
+    }
+
+    .simple-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      height: 200px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+      border-radius: 0.375rem 0.375rem 0 0;
+      position: relative;
+      min-height: 40px;
+      transition: all 0.3s;
+    }
+
+    .chart-bar:hover {
+      filter: brightness(1.1);
+    }
+
+    .chart-label {
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    .chart-value {
+      position: absolute;
+      top: -25px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: 600;
+      color: var(--gray-900);
+      font-size: 0.9rem;
+    }
+
+    .tab-menu {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--gray-200);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      margin-bottom: -2px;
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-btn:hover {
+      color: var(--gray-900);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    .report-table thead {
+      background: var(--gray-100);
+    }
+
+    .report-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--gray-700);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .report-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .report-table tbody tr:hover {
+      background: var(--gray-50);
+    }
+
+    .employee-name {
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-puntual {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-tardanza {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-falta {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .filter-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .export-btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+    }
+
+    .time-input {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .time-input input {
+      max-width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <span>🔐</span>
+      <span>SecureAccess</span>
+    </div>
+    <div class="header-user">
+      <div class="user-info">
+        <div>Sofía Velasco</div>
+        <div class="user-role">Gerente de RRHH</div>
+      </div>
+      <div class="user-avatar">SV</div>
+      <button class="btn-logout" onclick="window.location.href='index.html'">Salir</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <div class="sidebar-layout">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <h3>Menú</h3>
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a href="rrhh-dashboard.html" class="sidebar-link active">
+              <span>📊</span>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>📈</span>
+              <span>Reportes</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>📋</span>
+              <span>Asistencia</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>⚙️</span>
+              <span>Configuración</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- MAIN AREA -->
+      <div class="main-content">
+        <!-- STATS -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-number">42</div>
+            <div class="stat-label">Presentes Hoy</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">8</div>
+            <div class="stat-label">Ausentes</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Tardanzas</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">97%</div>
+            <div class="stat-label">Asistencia Mes</div>
+          </div>
+        </div>
+
+        <!-- FILTER SECTION -->
+        <div class="filter-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 600;">Generar Reportes</h3>
+            <button class="export-btn">📥 Exportar PDF</button>
+          </div>
+
+          <div class="filter-row">
+            <div class="form-group">
+              <label class="form-label">Departamento</label>
+              <select class="form-control">
+                <option>Todos los departamentos</option>
+                <option>IT</option>
+                <option>Finanzas</option>
+                <option>Marketing</option>
+                <option>Operaciones</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Fecha Inicio</label>
+              <input type="date" class="form-control" value="2026-04-01">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Fecha Fin</label>
+              <input type="date" class="form-control" value="2026-05-03">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-primary" style="width: 100%;">🔍 Generar Reporte</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="chart-container">
+          <div class="chart-title">Asistencia por Departamento (Últimos 7 días)</div>
+          <div class="simple-chart">
+            <div class="chart-bar" style="height: 95%;">
+              <div class="chart-value">42</div>
+              <div class="chart-label">IT</div>
+            </div>
+            <div class="chart-bar" style="height: 88%;">
+              <div class="chart-value">37</div>
+              <div class="chart-label">RRHH</div>
+            </div>
+            <div class="chart-bar" style="height: 92%;">
+              <div class="chart-value">39</div>
+              <div class="chart-label">Finanzas</div>
+            </div>
+            <div class="chart-bar" style="height: 85%;">
+              <div class="chart-value">36</div>
+              <div class="chart-label">Marketing</div>
+            </div>
+            <div class="chart-bar" style="height: 90%;">
+              <div class="chart-value">38</div>
+              <div class="chart-label">Operaciones</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="card">
+          <div class="tab-menu">
+            <button class="tab-btn active" onclick="switchTab('asistencia')">📅 Reporte Asistencia</button>
+            <button class="tab-btn" onclick="switchTab('puntualidad')">⏰ Reporte Puntualidad</button>
+            <button class="tab-btn" onclick="switchTab('tardanzas')">⚠️ Análisis Tardanzas</button>
+          </div>
+
+          <!-- ASISTENCIA TAB -->
+          <div id="asistencia-tab" class="tab-content">
+            <div class="table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th>Departamento</th>
+                    <th>Fecha</th>
+                    <th>Hora Entrada</th>
+                    <th>Hora Salida</th>
+                    <th>Horas Trabajadas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="employee-name">Juan Carlos López</td>
+                    <td>IT</td>
+                    <td>2026-05-03</td>
+                    <td>08:05</td>
+                    <td>17:30</td>
+                    <td>9h 25min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">María Fernández García</td>
+                    <td>RRHH</td>
+                    <td>2026-05-03</td>
+                    <td>07:58</td>
+                    <td>17:15</td>
+                    <td>9h 17min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Roberto Mendoza Ruiz</td>
+                    <td>Finanzas</td>
+                    <td>2026-05-03</td>
+                    <td>08:22</td>
+                    <td>17:45</td>
+                    <td>9h 23min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Ana Martínez Soto</td>
+                    <td>Marketing</td>
+                    <td>2026-05-03</td>
+                    <td>08:12</td>
+                    <td>17:20</td>
+                    <td>9h 8min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Diego Rodríguez Castro</td>
+                    <td>Operaciones</td>
+                    <td>2026-05-03</td>
+                    <td>08:00</td>
+                    <td>17:35</td>
+                    <td>9h 35min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Laura Gómez Martín</td>
+                    <td>IT</td>
+                    <td>2026-05-03</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PUNTUALIDAD TAB -->
+          <div id="puntualidad-tab" class="tab-content" style="display: none;">
+            <div class="table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th>Departamento</th>
+                    <th>Fecha</th>
+                    <th>Hora Entrada</th>
+                    <th>Hora Laboral</th>
+                    <th>Estado</th>
+                    <th>Minutos Retraso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="employee-name">Juan Carlos López</td>
+                    <td>IT</td>
+                    <td>2026-05-03</td>
+                    <td>08:05</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-puntual">Puntual</span></td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">María Fernández García</td>
+                    <td>RRHH</td>
+                    <td>2026-05-03</td>
+                    <td>07:58</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-puntual">Puntual</span></td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Roberto Mendoza Ruiz</td>
+                    <td>Finanzas</td>
+                    <td>2026-05-03</td>
+                    <td>08:22</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-tardanza">Tardanza</span></td>
+                    <td>22</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Ana Martínez Soto</td>
+                    <td>Marketing</td>
+                    <td>2026-05-03</td>
+                    <td>08:12</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-puntual">Puntual</span></td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Diego Rodríguez Castro</td>
+                    <td>Operaciones</td>
+                    <td>2026-05-03</td>
+                    <td>08:00</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-puntual">Puntual</span></td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Carlos Jiménez López</td>
+                    <td>IT</td>
+                    <td>2026-05-03</td>
+                    <td>08:35</td>
+                    <td>08:00</td>
+                    <td><span class="status-badge status-tardanza">Tardanza</span></td>
+                    <td>35</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TARDANZAS TAB -->
+          <div id="tardanzas-tab" class="tab-content" style="display: none;">
+            <div class="table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th>Departamento</th>
+                    <th>Mes</th>
+                    <th>Tardanzas</th>
+                    <th>Total Minutos</th>
+                    <th>Promedio Retraso</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="employee-name">Roberto Mendoza Ruiz</td>
+                    <td>Finanzas</td>
+                    <td>Mayo 2026</td>
+                    <td>3</td>
+                    <td>67</td>
+                    <td>22.33 min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Carlos Jiménez López</td>
+                    <td>IT</td>
+                    <td>Mayo 2026</td>
+                    <td>5</td>
+                    <td>142</td>
+                    <td>28.4 min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Marcela Sánchez Cruz</td>
+                    <td>Marketing</td>
+                    <td>Mayo 2026</td>
+                    <td>2</td>
+                    <td>45</td>
+                    <td>22.5 min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Pedro Flores García</td>
+                    <td>Operaciones</td>
+                    <td>Mayo 2026</td>
+                    <td>4</td>
+                    <td>98</td>
+                    <td>24.5 min</td>
+                  </tr>
+                  <tr>
+                    <td class="employee-name">Valentina López Ruiz</td>
+                    <td>RRHH</td>
+                    <td>Mayo 2026</td>
+                    <td>1</td>
+                    <td>18</td>
+                    <td>18 min</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.getElementById('asistencia-tab').style.display = 'none';
+      document.getElementById('puntualidad-tab').style.display = 'none';
+      document.getElementById('tardanzas-tab').style.display = 'none';
+
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName + '-tab').style.display = 'block';
+
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
