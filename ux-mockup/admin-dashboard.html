@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - Sistema de Control de Acceso</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .admin-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .admin-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .admin-card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.5rem;
+    }
+
+    .admin-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .admin-card-action {
+      font-size: 0.8125rem;
+    }
+
+    .admin-card-action a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .admin-card-action a:hover {
+      text-decoration: underline;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 1.5rem;
+      margin-top: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .management-section {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      transition: all 0.3s;
+    }
+
+    .user-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-item:hover {
+      background: var(--gray-50);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.25rem;
+    }
+
+    .user-role {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray-300);
+      background: white;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+      background: var(--gray-100);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    .status-active {
+      background: var(--success);
+    }
+
+    .status-inactive {
+      background: var(--danger);
+    }
+
+    .audit-log {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+    }
+
+    .audit-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      border-left: 3px solid var(--gray-300);
+      margin-bottom: 0.75rem;
+      background: var(--gray-50);
+      border-radius: 0.375rem;
+    }
+
+    .audit-item.success {
+      border-left-color: var(--success);
+    }
+
+    .audit-item.warning {
+      border-left-color: var(--warning);
+    }
+
+    .audit-item.error {
+      border-left-color: var(--danger);
+    }
+
+    .audit-icon {
+      font-size: 1.25rem;
+      min-width: 30px;
+    }
+
+    .audit-content {
+      flex: 1;
+    }
+
+    .audit-action {
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.25rem;
+    }
+
+    .audit-details {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+    }
+
+    .audit-time {
+      font-size: 0.75rem;
+      color: var(--gray-400);
+      text-align: right;
+      min-width: 100px;
+    }
+
+    .btn-action-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <span>🔐</span>
+      <span>SecureAccess</span>
+    </div>
+    <div class="header-user">
+      <div class="user-info">
+        <div>Alejandro García</div>
+        <div class="user-role">Administrador Sistema</div>
+      </div>
+      <div class="user-avatar">AG</div>
+      <button class="btn-logout" onclick="window.location.href='index.html'">Salir</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <div class="sidebar-layout">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <h3>Menú</h3>
+        <ul class="sidebar-menu">
+          <li class="sidebar-item">
+            <a href="admin-dashboard.html" class="sidebar-link active">
+              <span>📊</span>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>👥</span>
+              <span>Usuarios</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>🏢</span>
+              <span>Departamentos</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>📍</span>
+              <span>Puntos Control</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>⚙️</span>
+              <span>Configuración</span>
+            </a>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link">
+              <span>📋</span>
+              <span>Auditoría</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- MAIN AREA -->
+      <div class="main-content">
+        <!-- QUICK ACTIONS -->
+        <h2 class="section-title">Panel de Control General</h2>
+        
+        <div class="admin-grid">
+          <div class="admin-card">
+            <div class="admin-card-icon">👥</div>
+            <div class="admin-card-title">Usuarios Activos</div>
+            <div class="admin-card-value">48</div>
+            <div class="admin-card-action">
+              <a href="#users">Gestionar usuarios →</a>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-icon">🏢</div>
+            <div class="admin-card-title">Departamentos</div>
+            <div class="admin-card-value">5</div>
+            <div class="admin-card-action">
+              <a href="#departments">Configurar →</a>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-icon">📍</div>
+            <div class="admin-card-title">Puntos Control</div>
+            <div class="admin-card-value">3</div>
+            <div class="admin-card-action">
+              <a href="#checkpoints">Administrar →</a>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-icon">📊</div>
+            <div class="admin-card-title">Registros Hoy</div>
+            <div class="admin-card-value">247</div>
+            <div class="admin-card-action">
+              <a href="#logs">Ver detalles →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- USERS MANAGEMENT -->
+        <h3 class="section-title" id="users">Gestión de Usuarios</h3>
+        
+        <div class="management-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 600;">Lista de Usuarios del Sistema</h4>
+            <button class="btn btn-primary" onclick="alert('Formulario para agregar nuevos usuarios')">+ Agregar Usuario</button>
+          </div>
+
+          <!-- USER 1 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Juan Carlos López
+              </div>
+              <div class="user-role">guardia_seguridad | Entrada Principal</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">🔄 Reset Pass</button>
+              <button class="action-btn">🔒 Desactivar</button>
+            </div>
+          </div>
+
+          <!-- USER 2 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Sofía Velasco
+              </div>
+              <div class="user-role">gerente_rrhh | RRHH Department</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">🔄 Reset Pass</button>
+              <button class="action-btn">🔒 Desactivar</button>
+            </div>
+          </div>
+
+          <!-- USER 3 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Alejandro García
+              </div>
+              <div class="user-role">administrador | System Admin</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">🔄 Reset Pass</button>
+            </div>
+          </div>
+
+          <!-- USER 4 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-inactive"></span>
+                Carlos Mendoza
+              </div>
+              <div class="user-role">guardia_seguridad | Puerta Lateral (Inactivo)</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">🔄 Reset Pass</button>
+              <button class="action-btn">✅ Activar</button>
+            </div>
+          </div>
+
+          <!-- USER 5 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Patricia Ruiz
+              </div>
+              <div class="user-role">empleado | IT Department</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">🔄 Reset Pass</button>
+              <button class="action-btn">🔒 Desactivar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PUNTOS CONTROL -->
+        <h3 class="section-title" id="checkpoints">Puntos de Control</h3>
+        
+        <div class="management-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 600;">Puntos de Acceso Activos</h4>
+            <button class="btn btn-primary" onclick="alert('Formulario para agregar nuevos puntos de control')">+ Nuevo Punto</button>
+          </div>
+
+          <!-- CHECKPOINT 1 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Entrada Principal
+              </div>
+              <div class="user-role">Puerta automática | Planta baja | Acceso: Todos</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">📊 Ver Logs</button>
+              <button class="action-btn">⚙️ Config</button>
+            </div>
+          </div>
+
+          <!-- CHECKPOINT 2 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Puerta Lateral
+              </div>
+              <div class="user-role">Torniquete | Planta baja | Acceso: Personal</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">📊 Ver Logs</button>
+              <button class="action-btn">⚙️ Config</button>
+            </div>
+          </div>
+
+          <!-- CHECKPOINT 3 -->
+          <div class="user-item">
+            <div class="user-info">
+              <div class="user-name">
+                <span class="status-indicator status-active"></span>
+                Salida Emergencia
+              </div>
+              <div class="user-role">Puerta manual | Planta 1 | Acceso: Restringido</div>
+            </div>
+            <div class="user-actions">
+              <button class="action-btn">✏️ Editar</button>
+              <button class="action-btn">📊 Ver Logs</button>
+              <button class="action-btn">⚙️ Config</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUDIT LOG -->
+        <h3 class="section-title">Registro de Auditoría (Últimas 24 horas)</h3>
+        
+        <div class="audit-log">
+          <!-- LOG 1 -->
+          <div class="audit-item success">
+            <div class="audit-icon">✅</div>
+            <div class="audit-content">
+              <div class="audit-action">Check-in Registrado</div>
+              <div class="audit-details">Juan Carlos López ingresó por Entrada Principal</div>
+            </div>
+            <div class="audit-time">Hoy 08:05</div>
+          </div>
+
+          <!-- LOG 2 -->
+          <div class="audit-item success">
+            <div class="audit-icon">✅</div>
+            <div class="audit-content">
+              <div class="audit-action">Reporte Generado</div>
+              <div class="audit-details">Sofía Velasco generó Reporte Asistencia - Mayo 2026</div>
+            </div>
+            <div class="audit-time">Hoy 07:45</div>
+          </div>
+
+          <!-- LOG 3 -->
+          <div class="audit-item warning">
+            <div class="audit-icon">⚠️</div>
+            <div class="audit-content">
+              <div class="audit-action">Tardanza Detectada</div>
+              <div class="audit-details">Roberto Mendoza registró entrada con 22 minutos de retraso</div>
+            </div>
+            <div class="audit-time">Hoy 08:22</div>
+          </div>
+
+          <!-- LOG 4 -->
+          <div class="audit-item success">
+            <div class="audit-icon">✅</div>
+            <div class="audit-content">
+              <div class="audit-action">Usuario Autenticado</div>
+              <div class="audit-details">Alejandro García inició sesión en el sistema</div>
+            </div>
+            <div class="audit-time">Hoy 08:30</div>
+          </div>
+
+          <!-- LOG 5 -->
+          <div class="audit-item">
+            <div class="audit-icon">📋</div>
+            <div class="audit-content">
+              <div class="audit-action">Cambio de Configuración</div>
+              <div class="audit-details">Punto de Control "Entrada Principal" actualizado</div>
+            </div>
+            <div class="audit-time">Hoy 09:15</div>
+          </div>
+
+          <!-- LOG 6 -->
+          <div class="audit-item error">
+            <div class="audit-icon">❌</div>
+            <div class="audit-content">
+              <div class="audit-action">Acceso Denegado</div>
+              <div class="audit-details">Intento de acceso no autorizado en Salida Emergencia</div>
+            </div>
+            <div class="audit-time">Hoy 09:45</div>
+          </div>
+
+          <!-- LOG 7 -->
+          <div class="audit-item success">
+            <div class="audit-icon">✅</div>
+            <div class="audit-content">
+              <div class="audit-action">Check-out Registrado</div>
+              <div class="audit-details">María Fernández García salió por Entrada Principal</div>
+            </div>
+            <div class="audit-time">Hoy 17:30</div>
+          </div>
+        </div>
+
+        <!-- SYSTEM INFO -->
+        <h3 class="section-title">Información del Sistema</h3>
+        
+        <div class="management-section">
+          <div class="user-item" style="border: none; padding: 0; margin-bottom: 0.75rem;">
+            <div class="user-name">Versión del Sistema</div>
+            <div style="text-align: right; font-weight: 600;">v1.0.0</div>
+          </div>
+          <div class="user-item" style="border: none; padding: 0; margin-bottom: 0.75rem;">
+            <div class="user-name">Fecha Última Actualización</div>
+            <div style="text-align: right; font-weight: 600;">2026-05-01</div>
+          </div>
+          <div class="user-item" style="border: none; padding: 0;">
+            <div class="user-name">Espacio en Base de Datos</div>
+            <div style="text-align: right; font-weight: 600;">2.4 MB de 5 GB</div>
+          </div>
+
+          <div class="btn-action-group">
+            <button class="btn btn-primary">🔄 Respaldar BD</button>
+            <button class="btn btn-secondary">📊 Generar Reporte</button>
+            <button class="btn btn-danger">🔧 Mantenimiento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple tab switching for management sections
+    function switchTab(tabName) {
+      console.log('Switching to:', tabName);
+    }
+  </script>
+</body>
+</html>
