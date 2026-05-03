@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Especificaciones de Diseño - SecureAccess</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .design-doc {
+      background: white;
+      padding: 3rem 2rem;
+      line-height: 1.8;
+    }
+
+    .design-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin: -3rem -2rem 3rem -2rem;
+    }
+
+    .design-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .design-header p {
+      font-size: 1.125rem;
+      opacity: 0.9;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section h2 {
+      font-size: 1.75rem;
+      color: var(--gray-900);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .section h3 {
+      font-size: 1.25rem;
+      color: var(--gray-800);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .color-box {
+      text-align: center;
+    }
+
+    .color-swatch {
+      width: 100%;
+      height: 120px;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .color-info {
+      font-size: 0.875rem;
+      text-align: left;
+    }
+
+    .color-label {
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.25rem;
+    }
+
+    .color-hex {
+      color: var(--gray-500);
+      font-family: 'Courier New', monospace;
+      font-size: 0.8125rem;
+    }
+
+    .typography-example {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: 0.5rem;
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .component-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+    }
+
+    .component-label {
+      font-size: 0.8125rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .btn-showcase {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .badge-showcase {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .spacing-demo {
+      display: flex;
+      gap: 0;
+      margin-top: 1rem;
+    }
+
+    .spacing-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.375rem;
+      font-size: 0.8125rem;
+    }
+
+    .shadow-demo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .shadow-box {
+      height: 100px;
+      background: white;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .shadow-sm {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .shadow-md {
+      box-shadow: var(--shadow-md);
+    }
+
+    .shadow-lg {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .shadow-xl {
+      box-shadow: var(--shadow-xl);
+    }
+
+    .table-example {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .table-example th,
+    .table-example td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table-example th {
+      background: var(--gray-100);
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .code-block {
+      background: var(--gray-900);
+      color: #d4d4d4;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8125rem;
+      margin-top: 1rem;
+    }
+
+    .toc {
+      background: var(--gray-50);
+      border-left: 4px solid var(--primary);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .toc a {
+      display: block;
+      color: var(--primary);
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .grid-demo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .grid-item {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .feature-card {
+      padding: 1.5rem;
+      background: var(--gray-50);
+      border-radius: 0.5rem;
+      border-left: 3px solid var(--primary);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-title {
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+  </style>
+</head>
+<body>
+  <div class="design-doc">
+    <div class="design-header">
+      <h1>📋 Especificaciones de Diseño</h1>
+      <p>Sistema de Control de Acceso de Personal Corporativo</p>
+      <p style="font-size: 0.9rem; margin-top: 1rem;">Versión 1.0 | Mayo 2026</p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <strong>📑 Tabla de Contenido</strong>
+      <a href="#overview">1. Descripción General</a>
+      <a href="#colors">2. Paleta de Colores</a>
+      <a href="#typography">3. Tipografía</a>
+      <a href="#spacing">4. Espaciado</a>
+      <a href="#shadows">5. Sombras</a>
+      <a href="#buttons">6. Botones</a>
+      <a href="#components">7. Componentes</a>
+      <a href="#layouts">8. Layouts</a>
+      <a href="#responsive">9. Responsividad</a>
+      <a href="#icons">10. Iconografía</a>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="section" id="overview">
+      <h2>1. Descripción General</h2>
+      <p>
+        El diseño del Sistema de Control de Acceso está centrado en la usabilidad, eficiencia y experiencia del usuario.
+        Cada página está diseñada para facilitar la tarea específica de cada rol de usuario.
+      </p>
+      
+      <h3>Pilares del Diseño</h3>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-title">Claridad</div>
+          <div class="feature-desc">La información se presenta de forma clara y jerárquica</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Eficiencia</div>
+          <div class="feature-desc">Acciones rápidas y directas para cada tarea</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <div class="feature-title">Consistencia</div>
+          <div class="feature-desc">Elementos visuales uniformes en toda la aplicación</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <div class="feature-title">Responsividad</div>
+          <div class="feature-desc">Funciona en todos los dispositivos</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">♿</div>
+          <div class="feature-title">Accesibilidad</div>
+          <div class="feature-desc">Contraste adecuado y navegación clara</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <div class="feature-title">Rendimiento</div>
+          <div class="feature-desc">Carga rápida y sin lag</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="section" id="colors">
+      <h2>2. Paleta de Colores</h2>
+      
+      <h3>Colores Primarios</h3>
+      <div class="color-grid">
+        <div class="color-box">
+          <div class="color-swatch" style="background: #2563eb;"></div>
+          <div class="color-info">
+            <div class="color-label">Azul Primario</div>
+            <div class="color-hex">#2563eb</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #1e40af;"></div>
+          <div class="color-info">
+            <div class="color-label">Azul Oscuro</div>
+            <div class="color-hex">#1e40af</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #3b82f6;"></div>
+          <div class="color-info">
+            <div class="color-label">Azul Claro</div>
+            <div class="color-hex">#3b82f6</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Colores Semánticos</h3>
+      <div class="color-grid">
+        <div class="color-box">
+          <div class="color-swatch" style="background: #10b981;"></div>
+          <div class="color-info">
+            <div class="color-label">Éxito</div>
+            <div class="color-hex">#10b981</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #f59e0b;"></div>
+          <div class="color-info">
+            <div class="color-label">Advertencia</div>
+            <div class="color-hex">#f59e0b</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #ef4444;"></div>
+          <div class="color-info">
+            <div class="color-label">Peligro</div>
+            <div class="color-hex">#ef4444</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Escala de Grises</h3>
+      <div class="color-grid">
+        <div class="color-box">
+          <div class="color-swatch" style="background: #f9fafb;"></div>
+          <div class="color-info">
+            <div class="color-label">Gray 50</div>
+            <div class="color-hex">#f9fafb</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #f3f4f6;"></div>
+          <div class="color-info">
+            <div class="color-label">Gray 100</div>
+            <div class="color-hex">#f3f4f6</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #6b7280;"></div>
+          <div class="color-info">
+            <div class="color-label">Gray 500</div>
+            <div class="color-hex">#6b7280</div>
+          </div>
+        </div>
+        <div class="color-box">
+          <div class="color-swatch" style="background: #111827;"></div>
+          <div class="color-info">
+            <div class="color-label">Gray 900</div>
+            <div class="color-hex">#111827</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Uso de Colores</h3>
+      <table class="table-example">
+        <thead>
+          <tr>
+            <th>Color</th>
+            <th>Uso</th>
+            <th>Ejemplo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Azul (#2563eb)</td>
+            <td>Elementos interactivos principales</td>
+            <td>Botones primarios, links</td>
+          </tr>
+          <tr>
+            <td>Verde (#10b981)</td>
+            <td>Acciones positivas, éxito</td>
+            <td>Botón "Confirmar", estado "Presente"</td>
+          </tr>
+          <tr>
+            <td>Rojo (#ef4444)</td>
+            <td>Acciones peligrosas, errores</td>
+            <td>Botón "Eliminar", estado "Ausente"</td>
+          </tr>
+          <tr>
+            <td>Naranja (#f59e0b)</td>
+            <td>Alertas, advertencias</td>
+            <td>Estado "Tardanza", notificaciones</td>
+          </tr>
+          <tr>
+            <td>Gray</td>
+            <td>Texto, fondos secundarios</td>
+            <td>Body text, backgrounds</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="section" id="typography">
+      <h2>3. Tipografía</h2>
+      
+      <h3>Fuente Principal</h3>
+      <p><strong>Familia:</strong> Segoe UI, Roboto, sans-serif</p>
+      <p><strong>Pesos disponibles:</strong> 400 (Regular), 600 (Semibold), 700 (Bold)</p>
+
+      <h3>Escalas de Tipografía</h3>
+      
+      <div class="typography-example">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin: 0;">Heading 1 - 2.5rem / 700</h1>
+        <p style="color: var(--gray-500); font-size: 0.875rem;">Usado en: Encabezados de página principal</p>
+      </div>
+
+      <div class="typography-example">
+        <h2 style="font-size: 2rem; font-weight: 700; margin: 0;">Heading 2 - 2rem / 700</h2>
+        <p style="color: var(--gray-500); font-size: 0.875rem;">Usado en: Títulos de sección</p>
+      </div>
+
+      <div class="typography-example">
+        <h3 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Heading 3 - 1.5rem / 700</h3>
+        <p style="color: var(--gray-500); font-size: 0.875rem;">Usado en: Subtítulos</p>
+      </div>
+
+      <div class="typography-example">
+        <p style="font-size: 1rem; font-weight: 400; margin: 0;">Body Text - 1rem / 400</p>
+        <p style="color: var(--gray-500); font-size: 0.875rem;">Usado en: Texto de párrafos principal</p>
+      </div>
+
+      <div class="typography-example">
+        <p style="font-size: 0.875rem; font-weight: 400; margin: 0;">Small Text - 0.875rem / 400</p>
+        <p style="color: var(--gray-500); font-size: 0.875rem;">Usado en: Texto secundario, labels</p>
+      </div>
+
+      <h3>Recomendaciones</h3>
+      <ul>
+        <li>Mantener línea base de 1.6 entre líneas</li>
+        <li>Máximo 80 caracteres por línea en desktop</li>
+        <li>Usar bold solo para destacar información importante</li>
+        <li>No exceder 3 niveles de jerarquía en una página</li>
+      </ul>
+    </div>
+
+    <!-- SPACING -->
+    <div class="section" id="spacing">
+      <h2>4. Espaciado</h2>
+      
+      <h3>Escala de Espaciado</h3>
+      <p>Se utiliza un sistema modular de 4px como base:</p>
+      
+      <div class="code-block">
+0.25rem (4px)  - Extra pequeño
+0.5rem (8px)   - Pequeño
+0.75rem (12px) - Pequeño-Medio
+1rem (16px)    - Medio
+1.5rem (24px)  - Medio-Grande
+2rem (32px)    - Grande
+2.5rem (40px)  - Extra Grande
+3rem (48px)    - Muy Grande
+      </div>
+
+      <h3>Aplicación</h3>
+      <table class="table-example">
+        <thead>
+          <tr>
+            <th>Elemento</th>
+            <th>Espaciado Vertical</th>
+            <th>Espaciado Horizontal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Párrafo</td>
+            <td>1.5rem</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>Sección</td>
+            <td>3rem</td>
+            <td>2rem</td>
+          </tr>
+          <tr>
+            <td>Card interna</td>
+            <td>1.5rem</td>
+            <td>1.5rem</td>
+          </tr>
+          <tr>
+            <td>Botón group</td>
+            <td>-</td>
+            <td>0.75rem</td>
+          </tr>
+          <tr>
+            <td>List items</td>
+            <td>0.5rem</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SHADOWS -->
+    <div class="section" id="shadows">
+      <h2>5. Sombras</h2>
+      
+      <h3>Niveles de Sombra</h3>
+      <div class="shadow-demo">
+        <div class="shadow-box shadow-sm">Shadow SM</div>
+        <div class="shadow-box shadow-md">Shadow MD</div>
+        <div class="shadow-box shadow-lg">Shadow LG</div>
+        <div class="shadow-box shadow-xl">Shadow XL</div>
+      </div>
+
+      <h3>Especificaciones</h3>
+      <div class="code-block">
+--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      </div>
+
+      <h3>Uso</h3>
+      <ul>
+        <li><strong>Shadow SM:</strong> Form inputs, pequeños elementos</li>
+        <li><strong>Shadow MD:</strong> Cards, modales pequeños</li>
+        <li><strong>Shadow LG:</strong> Modales, hover states</li>
+        <li><strong>Shadow XL:</strong> Overlays, elementos destacados</li>
+      </ul>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="section" id="buttons">
+      <h2>6. Botones</h2>
+      
+      <h3>Variaciones de Botones</h3>
+      
+      <div class="component-box">
+        <div class="component-label">Botón Primario</div>
+        <div class="btn-showcase">
+          <button class="btn btn-primary">Primario</button>
+          <button class="btn btn-primary" disabled>Deshabilitado</button>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-label">Botón Secundario</div>
+        <div class="btn-showcase">
+          <button class="btn btn-secondary">Secundario</button>
+          <button class="btn btn-secondary" disabled>Deshabilitado</button>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-label">Botón Éxito</div>
+        <div class="btn-showcase">
+          <button class="btn btn-success">Éxito</button>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-label">Botón Peligro</div>
+        <div class="btn-showcase">
+          <button class="btn btn-danger">Peligro</button>
+        </div>
+      </div>
+
+      <h3>Tamaños</h3>
+      <div class="component-box">
+        <div class="btn-showcase">
+          <button class="btn btn-primary" style="padding: 1rem 2rem;">Grande</button>
+          <button class="btn btn-primary">Mediano (default)</button>
+          <button class="btn btn-primary btn-small">Pequeño</button>
+        </div>
+      </div>
+
+      <h3>Estados</h3>
+      <table class="table-example">
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Descripción</th>
+            <th>Cursor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Default</td>
+            <td>Estado normal del botón</td>
+            <td>pointer</td>
+          </tr>
+          <tr>
+            <td>Hover</td>
+            <td>Translate Y -2px, shadow aumentada</td>
+            <td>pointer</td>
+          </tr>
+          <tr>
+            <td>Active</td>
+            <td>Scale 0.95</td>
+            <td>pointer</td>
+          </tr>
+          <tr>
+            <td>Disabled</td>
+            <td>Opacity 0.6, no interactivo</td>
+            <td>not-allowed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPONENTS -->
+    <div class="section" id="components">
+      <h2>7. Componentes</h2>
+      
+      <h3>Badges</h3>
+      <div class="component-box">
+        <div class="component-label">Variaciones de Badges</div>
+        <div class="badge-showcase">
+          <span class="badge badge-success">Puntual</span>
+          <span class="badge badge-warning">Tardanza</span>
+          <span class="badge badge-danger">Falta</span>
+          <span class="badge badge-info">Información</span>
+        </div>
+      </div>
+
+      <h3>Cards</h3>
+      <div class="component-box">
+        <div class="component-label">Estructura básica de Card</div>
+        <div class="card" style="margin-top: 1rem;">
+          <div class="card-header">
+            <h3 class="card-title">Título de Card</h3>
+          </div>
+          <p>Contenido de la tarjeta. Puede incluir texto, tablas, forms, etc.</p>
+        </div>
+      </div>
+
+      <h3>KPI Cards</h3>
+      <div class="component-box">
+        <div class="component-label">Cards de Indicadores</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem;">
+          <div class="kpi-card">
+            <div class="kpi-label">Presentes</div>
+            <div class="kpi-value">42</div>
+            <div class="kpi-change">↑ 5 desde ayer</div>
+          </div>
+          <div class="kpi-card warning">
+            <div class="kpi-label">Tardanzas</div>
+            <div class="kpi-value">3</div>
+            <div class="kpi-change">Hoy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUTS -->
+    <div class="section" id="layouts">
+      <h2>8. Layouts</h2>
+      
+      <h3>Layout Principal</h3>
+      <p>Estructura de 2 columnas: Sidebar + Contenido Principal</p>
+      <div class="component-box">
+        <div class="component-label">Grid Layout</div>
+        <div class="grid-demo">
+          <div class="grid-item" style="grid-column: 1;">Sidebar</div>
+          <div class="grid-item" style="grid-column: span 3;">Contenido Principal</div>
+        </div>
+      </div>
+
+      <h3>Breakpoints Responsive</h3>
+      <table class="table-example">
+        <thead>
+          <tr>
+            <th>Breakpoint</th>
+            <th>Ancho</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mobile</td>
+            <td>320px - 639px</td>
+            <td>1 columna, sidebar colapsable</td>
+          </tr>
+          <tr>
+            <td>Tablet</td>
+            <td>640px - 1023px</td>
+            <td>1 columna expandida</td>
+          </tr>
+          <tr>
+            <td>Desktop</td>
+            <td>1024px +</td>
+            <td>2 columnas: sidebar + contenido</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RESPONSIVE -->
+    <div class="section" id="responsive">
+      <h2>9. Responsividad</h2>
+      
+      <h3>Media Queries</h3>
+      <div class="code-block">
+/* Tablet */
+@media (max-width: 768px) {
+  .sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    padding: 1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .header {
+    flex-direction: column;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+      </div>
+
+      <h3>Consideraciones Mobile</h3>
+      <ul>
+        <li>Mínimo 44x44px para elementos interactivos</li>
+        <li>Font size mínimo 16px en inputs</li>
+        <li>Touch area padding: 8px</li>
+        <li>Sidebar debe colapsar o ser drawer</li>
+        <li>Tablas en mobile pueden horizontales o convertirse a cards</li>
+      </ul>
+    </div>
+
+    <!-- ICONS -->
+    <div class="section" id="icons">
+      <h2>10. Iconografía</h2>
+      
+      <h3>Sistema de Iconos Utilizado</h3>
+      <p>Se utilizan emojis para dar una sensación amigable y moderna.</p>
+      <p>Los emojis son semánticos y comprensibles en todos los idiomas.</p>
+
+      <h3>Iconos Comunes</h3>
+      <table class="table-example">
+        <thead>
+          <tr>
+            <th>Ícono</th>
+            <th>Uso</th>
+            <th>Contexto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🔐</td>
+            <td>Seguridad, Sistema</td>
+            <td>Logo, encabezados</td>
+          </tr>
+          <tr>
+            <td>📊</td>
+            <td>Dashboard, Reportes</td>
+            <td>Menú principal</td>
+          </tr>
+          <tr>
+            <td>👥</td>
+            <td>Usuarios, Personas</td>
+            <td>Gestión de usuarios</td>
+          </tr>
+          <tr>
+            <td>📍</td>
+            <td>Ubicación, Puntos</td>
+            <td>Puntos de control</td>
+          </tr>
+          <tr>
+            <td>✅</td>
+            <td>Éxito, Confirmación</td>
+            <td>Estados positivos</td>
+          </tr>
+          <tr>
+            <td>❌</td>
+            <td>Error, Rechazo</td>
+            <td>Estados negativos</td>
+          </tr>
+          <tr>
+            <td>⚠️</td>
+            <td>Advertencia, Alerta</td>
+            <td>Estados de advertencia</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="text-align: center; margin-top: 4rem; padding: 2rem; border-top: 1px solid var(--gray-200); color: var(--gray-500);">
+      <p><strong>SecureAccess</strong> - Especificaciones de Diseño v1.0</p>
+      <p>© 2026 Sistema de Control de Acceso. Todos los derechos reservados.</p>
+      <p style="font-size: 0.875rem; margin-top: 1rem;">Documento de referencia para desarrolladores e diseñadores</p>
+    </footer>
+  </div>
+</body>
+</html>
