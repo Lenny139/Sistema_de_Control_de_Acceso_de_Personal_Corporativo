@@ -7,7 +7,7 @@ export class ReporteService {
         const query = new URLSearchParams({
             fechaInicio: params.fechaInicio,
             fechaFin: params.fechaFin,
-            ...(params.empleado ? { empleado: params.empleado } : {}),
+            ...(params.empleado ? { empleadoId: params.empleado } : {}),
             ...(params.departamento ? { departamento: params.departamento } : {}),
         });
         return this.api.get(`/reports/asistencia?${query.toString()}`);
@@ -16,7 +16,7 @@ export class ReporteService {
         const query = new URLSearchParams({
             fechaInicio: params.fechaInicio,
             fechaFin: params.fechaFin,
-            ...(params.empleado ? { empleado: params.empleado } : {}),
+            ...(params.empleado ? { empleadoId: params.empleado } : {}),
             ...(params.departamento ? { departamento: params.departamento } : {}),
         });
         return this.api.get(`/reports/puntualidad?${query.toString()}`);

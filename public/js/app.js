@@ -91,11 +91,25 @@ if (hamburger && sidebar && overlay) {
 }
 
 if (pathname.endsWith('/index.html') || pathname === '/') {
-  new LoginController(new LoginView()).init();
+  if (authStore.isAuthenticated() && router.hasValidToken()) {
+    const role = authStore.getRole();
+    if (role === 'GUARDIA_SEGURIDAD') {
+      router.navigate('/dashboard-guardia.html');
+    } else if (role === 'GERENTE_RRHH') {
+      router.navigate('/dashboard-rrhh.html');
+    } else if (role === 'ADMINISTRADOR') {
+      router.navigate('/dashboard-admin.html');
+    } else {
+      new LoginController(new LoginView()).init();
+    }
+  } else {
+    new LoginController(new LoginView()).init();
+  }
 }
 
 if (pathname.endsWith('/dashboard-guardia.html')) {
   router.checkAccess(['GUARDIA_SEGURIDAD']);
+  window.history.replaceState({}, '', '/');
   const gc = new GuardiaController(new GuardiaView());
   gc.init();
   window.addEventListener('beforeunload', () => gc.destroy());
@@ -103,6 +117,7 @@ if (pathname.endsWith('/dashboard-guardia.html')) {
 
 if (pathname.endsWith('/dashboard-rrhh.html')) {
   router.checkAccess(['GERENTE_RRHH', 'ADMINISTRADOR']);
+  window.history.replaceState({}, '', '/');
   const rc = new RRHHController(new RRHHView());
   rc.init();
   window.addEventListener('beforeunload', () => rc.destroy());
@@ -110,6 +125,7 @@ if (pathname.endsWith('/dashboard-rrhh.html')) {
 
 if (pathname.endsWith('/dashboard-admin.html')) {
   router.checkAccess(['ADMINISTRADOR']);
+  window.history.replaceState({}, '', '/');
   const ac = new AdminController(new AdminView());
   ac.init();
   document.addEventListener('click', (event) => {

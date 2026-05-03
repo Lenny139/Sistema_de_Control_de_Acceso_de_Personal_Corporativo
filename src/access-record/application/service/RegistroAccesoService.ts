@@ -36,19 +36,37 @@ export class RegistroAccesoService implements RegistroAccesoServicePort {
       observaciones: dto.observaciones ?? null,
       createdAt: ahora,
     });
-    const created = await this.registroRepository.save(registro);
 
-    await AuditServiceSingleton.getInstance().log({
-      usuarioId: dto.guardiaId,
-      accion: EAccionAudit.CHECK_IN,
-      entidad: EEntidadAudit.REGISTRO_ACCESO,
-      entidadId: created.getId(),
-      datosNuevos: {
-        empleadoId: created.getEmpleadoId(),
-        puntoControlId: created.getPuntoControlId(),
-        tipo: created.getTipo(),
-        timestampRegistro: created.getTimestampRegistro().toISOString(),
-      },
+    const created = await this.registroRepository.save(registro, (database, registroCreated) => {
+      // Insert audit log within the same transaction
+      database.prepare(
+        `INSERT INTO audit_log (
+          id,
+          usuario_id,
+          accion,
+          entidad,
+          entidad_id,
+          datos_anteriores,
+          datos_nuevos,
+          ip_address,
+          timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        uuidv4(),
+        dto.guardiaId,
+        EAccionAudit.CHECK_IN,
+        EEntidadAudit.REGISTRO_ACCESO,
+        registroCreated.getId(),
+        null,
+        JSON.stringify({
+          empleadoId: registroCreated.getEmpleadoId(),
+          puntoControlId: registroCreated.getPuntoControlId(),
+          tipo: registroCreated.getTipo(),
+          timestampRegistro: registroCreated.getTimestampRegistro().toISOString(),
+        }),
+        null,
+        new Date().toISOString(),
+      );
     });
 
     return created;
@@ -79,19 +97,37 @@ export class RegistroAccesoService implements RegistroAccesoServicePort {
       observaciones: dto.observaciones ?? null,
       createdAt: ahora,
     });
-    const created = await this.registroRepository.save(registro);
 
-    await AuditServiceSingleton.getInstance().log({
-      usuarioId: dto.guardiaId,
-      accion: EAccionAudit.CHECK_OUT,
-      entidad: EEntidadAudit.REGISTRO_ACCESO,
-      entidadId: created.getId(),
-      datosNuevos: {
-        empleadoId: created.getEmpleadoId(),
-        puntoControlId: created.getPuntoControlId(),
-        tipo: created.getTipo(),
-        timestampRegistro: created.getTimestampRegistro().toISOString(),
-      },
+    const created = await this.registroRepository.save(registro, (database, registroCreated) => {
+      // Insert audit log within the same transaction
+      database.prepare(
+        `INSERT INTO audit_log (
+          id,
+          usuario_id,
+          accion,
+          entidad,
+          entidad_id,
+          datos_anteriores,
+          datos_nuevos,
+          ip_address,
+          timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        uuidv4(),
+        dto.guardiaId,
+        EAccionAudit.CHECK_OUT,
+        EEntidadAudit.REGISTRO_ACCESO,
+        registroCreated.getId(),
+        null,
+        JSON.stringify({
+          empleadoId: registroCreated.getEmpleadoId(),
+          puntoControlId: registroCreated.getPuntoControlId(),
+          tipo: registroCreated.getTipo(),
+          timestampRegistro: registroCreated.getTimestampRegistro().toISOString(),
+        }),
+        null,
+        new Date().toISOString(),
+      );
     });
 
     return created;

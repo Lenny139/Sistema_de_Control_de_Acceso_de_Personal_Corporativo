@@ -3,6 +3,10 @@ import { EstadoPresencia } from '../../../../domain/model/EstadoPresencia';
 import { RegistroAcceso } from '../../../../domain/model/RegistroAcceso';
 
 export interface RegistroAccesoRepositoryPort extends Repository<string, RegistroAcceso> {
+  save(
+    item: RegistroAcceso,
+    withinTransaction?: (db: any, created: RegistroAcceso) => void,
+  ): Promise<RegistroAcceso>;
   findByEmpleadoAndFecha(empleadoId: string, fecha: string): Promise<RegistroAcceso[]>;
   findByEmpleadoAndRango(
     empleadoId: string,

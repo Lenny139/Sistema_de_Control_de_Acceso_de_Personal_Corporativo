@@ -34,7 +34,10 @@ export class RegistroAccesoSQLiteRepository implements RegistroAccesoRepositoryP
     return rows.map((row) => this.mapRowToRegistro(row));
   }
 
-  async save(item: RegistroAcceso): Promise<RegistroAcceso> {
+  async save(
+    item: RegistroAcceso,
+    withinTransaction?: (db: SQLiteDatabase, created: RegistroAcceso) => void,
+  ): Promise<RegistroAcceso> {
     const created = this.db.transaction(() => {
       this.db.prepare(
         `INSERT INTO registros_acceso (
@@ -62,7 +65,14 @@ export class RegistroAccesoSQLiteRepository implements RegistroAccesoRepositoryP
         .prepare('SELECT * FROM registros_acceso WHERE id = ? LIMIT 1')
         .get(item.getId()) as RegistroAccesoRow | undefined;
 
-      return row ? this.mapRowToRegistro(row) : null;
+      const result = row ? this.mapRowToRegistro(row) : null;
+
+      // Execute callback within transaction if provided
+      if (withinTransaction && result) {
+        withinTransaction(this.db, result);
+      }
+
+      return result;
     })();
 
     if (!created) {

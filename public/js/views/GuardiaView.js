@@ -202,13 +202,13 @@ export class GuardiaView {
                 ? '<li class="list-group-item text-muted small">Sin empleados presentes</li>'
                 : estado.presentes
                     .map((item) => {
-                    const alerta = item.minutosEnInstalaciones > 600;
+                    const alerta = item.minutosEnInstalacion > 600;
                     return `
             <li class="list-group-item presentes-list-item d-flex justify-content-between align-items-start ${alerta ? 'alerta-prolongada' : ''}">
               <div>
-                <div class="fw-semibold">${item.nombre}</div>
+                <div class="fw-semibold">${item.nombreCompleto}</div>
                 <div class="small text-muted">${item.departamento}</div>
-                <div class="small">Hora ${item.horaIngreso} · ${item.minutosEnInstalaciones} min</div>
+                <div class="small">Hora ${item.horaEntrada} · ${item.minutosEnInstalacion} min</div>
               </div>
               ${alerta ? '<span class="badge badge-tardanza">+10h</span>' : ''}
             </li>`;

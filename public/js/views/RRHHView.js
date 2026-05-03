@@ -34,7 +34,7 @@ export class RRHHView {
             const item = row;
             return `
           <tr>
-            <td>${String(item.empleado ?? '')}</td>
+            <td>${String(item.nombreCompleto ?? '')}</td>
             <td>${String(item.fecha ?? '')}</td>
             <td>${String(item.horaEntrada ?? '')}</td>
             <td>${String(item.horaSalida ?? '')}</td>
@@ -55,11 +55,11 @@ export class RRHHView {
         body.innerHTML = rows
             .map((row) => {
             const item = row;
-            const estado = String(item.estado ?? '');
+            const estado = String(item.estadoPuntualidad ?? '');
             const badgeClass = estado === 'PUNTUAL' ? 'text-bg-success' : estado === 'TARDANZA' ? 'text-bg-warning' : 'text-bg-danger';
             return `
           <tr>
-            <td>${String(item.empleado ?? '')}</td>
+            <td>${String(item.nombreCompleto ?? '')}</td>
             <td>${String(item.fecha ?? '')}</td>
             <td>${String(item.horaEntrada ?? '')}</td>
             <td>${String(item.horaLaboral ?? '')}</td>

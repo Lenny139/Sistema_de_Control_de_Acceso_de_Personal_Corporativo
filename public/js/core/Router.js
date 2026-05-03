@@ -8,7 +8,7 @@ export class Router {
     }
     redirectToLogin() {
         this.authStore.clear();
-        this.navigate('/index.html');
+        this.navigate('/');
     }
     checkAccess(allowedRoles) {
         if (!this.authStore.isAuthenticated() || !this.hasValidToken()) {

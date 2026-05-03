@@ -16,7 +16,8 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(13, 71, 161, 0.18);
+    backdrop-filter: blur(2px);
     z-index: 1040;
   }
   .sidebar-overlay.active { display: block; }
