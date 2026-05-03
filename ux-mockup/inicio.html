@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Índice - UX Mockup SecureAccess</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .index-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .index-header {
+      background: white;
+      border-radius: 1rem;
+      padding: 3rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .index-header h1 {
+      font-size: 2.5rem;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .index-header p {
+      color: #6b7280;
+      font-size: 1.125rem;
+    }
+
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .index-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .index-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .index-card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .card-role {
+      display: inline-block;
+      background: #dbeafe;
+      color: #0c2d6b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .card-role.guardia {
+      background: #d1d5db;
+      color: #1f2937;
+    }
+
+    .card-role.rrhh {
+      background: #ddd6fe;
+      color: #4c1d95;
+    }
+
+    .card-role.admin {
+      background: #fed7aa;
+      color: #78350f;
+    }
+
+    .card-role.empleado {
+      background: #ccfbf1;
+      color: #134e4a;
+    }
+
+    .section-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      color: white;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+
+    .info-box p {
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box code {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .quick-links {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .quick-links h3 {
+      margin-top: 0;
+      color: #111827;
+    }
+
+    .quick-links a {
+      display: inline-block;
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      margin-right: 0.75rem;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s;
+    }
+
+    .quick-links a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    }
+
+    .footer {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      color: white;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-badge {
+      display: inline-block;
+      background: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .index-header {
+        padding: 1.5rem;
+      }
+
+      .index-header h1 {
+        font-size: 1.75rem;
+      }
+
+      .index-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="index-container">
+    <!-- HEADER -->
+    <div class="index-header">
+      <h1>🔐 SecureAccess</h1>
+      <p>Diseño UX/Mockup - Sistema de Control de Acceso</p>
+      <p style="font-size: 0.9rem; color: #9ca3af; margin-top: 1rem;">v1.0 | Mayo 2026</p>
+    </div>
+
+    <!-- INFORMACIÓN -->
+    <div class="info-box">
+      <h3>📋 Bienvenido</h3>
+      <p>Este es un protitipo completo de UI/UX con datos estáticos para el Sistema de Control de Acceso de Personal Corporativo.</p>
+      <p>Explora los diferentes dashboards según el rol. ¡Todos los datos son de demostración!</p>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="quick-links">
+      <h3>⚡ Acceso Rápido</h3>
+      <a href="index.html">🔑 Ir al Login</a>
+      <a href="design-specs.html">📐 Ver Especificaciones</a>
+      <a href="README.md">📖 Ver README</a>
+    </div>
+
+    <!-- SECTION: AUTENTICACIÓN -->
+    <div class="section-title">🔐 Autenticación</div>
+    <div class="index-grid">
+      <div class="index-card">
+        <a href="index.html">
+          <div class="card-icon">🔐</div>
+          <div class="card-title">Portal de Acceso</div>
+          <div class="card-description">
+            Sistema de login con usuarios demo. Selecciona un rol para acceder al dashboard correspondiente.
+          </div>
+          <div><span class="card-role">Punto de entrada</span></div>
+        </a>
+      </div>
+    </div>
+
+    <!-- SECTION: DASHBOARDS -->
+    <div class="section-title">📊 Dashboards por Rol</div>
+    <div class="index-grid">
+      <div class="index-card">
+        <a href="guardia-dashboard.html">
+          <div class="card-icon">👮</div>
+          <div class="card-title">Dashboard Guardia</div>
+          <div class="card-description">
+            Gestión en tiempo real de empleados presentes. Registro de entrada/salida. Vista instantánea del estado del edificio.
+          </div>
+          <div><span class="card-role guardia">Guardia de Seguridad</span></div>
+        </a>
+      </div>
+
+      <div class="index-card">
+        <a href="rrhh-dashboard.html">
+          <div class="card-icon">👔</div>
+          <div class="card-title">Dashboard RRHH</div>
+          <div class="card-description">
+            Reportes profesionales de asistencia, puntualidad y tardanzas. Filtros avanzados por departamento y fecha.
+          </div>
+          <div><span class="card-role rrhh">Gerente de RRHH</span></div>
+        </a>
+      </div>
+
+      <div class="index-card">
+        <a href="admin-dashboard.html">
+          <div class="card-icon">👨‍💼</div>
+          <div class="card-title">Dashboard Admin</div>
+          <div class="card-description">
+            Administración completa del sistema. Gestión de usuarios, puntos de control y registro de auditoría.
+          </div>
+          <div><span class="card-role admin">Administrador</span></div>
+        </a>
+      </div>
+
+      <div class="index-card">
+        <a href="empleado-dashboard.html">
+          <div class="card-icon">👩‍💼</div>
+          <div class="card-title">Dashboard Empleado</div>
+          <div class="card-description">
+            Mi información personal, estado de asistencia hoy, y registro histórico de accesos.
+          </div>
+          <div><span class="card-role empleado">Empleado</span></div>
+        </a>
+      </div>
+    </div>
+
+    <!-- SECTION: DOCUMENTACIÓN -->
+    <div class="section-title">📚 Documentación</div>
+    <div class="index-grid">
+      <div class="index-card">
+        <a href="design-specs.html">
+          <div class="card-icon">📐</div>
+          <div class="card-title">Especificaciones de Diseño</div>
+          <div class="card-description">
+            Guía completa de estilos, colores, tipografía, componentes y layouts utilizados en el mockup.
+          </div>
+          <div><span class="card-role">Documentación</span></div>
+        </a>
+      </div>
+
+      <div class="index-card">
+        <a href="README.md" target="_blank">
+          <div class="card-icon">📖</div>
+          <div class="card-title">README</div>
+          <div class="card-description">
+            Instrucciones de uso, tabla de usuarios demo, estructura de archivos y cómo personalizar el diseño.
+          </div>
+          <div><span class="card-role">Guía de Uso</span></div>
+        </a>
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN ADICIONAL -->
+    <div class="info-box" style="margin-top: 3rem;">
+      <h3>📱 Dispositivos Soportados</h3>
+      <p>✅ Desktop (1024px+) | ✅ Tablet (640px - 1023px) | ✅ Mobile (320px - 639px)</p>
+    </div>
+
+    <div class="info-box">
+      <h3>🎨 Características del Diseño</h3>
+      <p>✨ Diseño responsivo y moderno | 🎯 Interfaz intuitiva | 📊 Datos estáticos para demostración | ⚡ Navegación fluida | 🌐 Compatibilidad con navegadores modernos</p>
+    </div>
+
+    <div class="info-box">
+      <h3>💡 Usuarios Demo Disponibles</h3>
+      <p><strong>guardia01</strong> (👮 Guardia) | <strong>rrhh01</strong> (👔 RRHH) | <strong>admin01</strong> (👨‍💼 Admin) | <strong>empleado01</strong> (👩‍💼 Empleado)</p>
+      <p style="font-size: 0.9rem; margin-top: 0.75rem;">Contraseña para todos: <code>password123</code></p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p><strong>SecureAccess</strong> - Diseño UX/Mockup v1.0</p>
+      <p>© 2026 Sistema de Control de Acceso de Personal Corporativo</p>
+      <p style="font-size: 0.9rem; margin-top: 1rem;">Este es un prototipo educativo con datos estáticos</p>
+      <p style="font-size: 0.8rem; margin-top: 0.75rem; opacity: 0.9;">Para implementación real, conecta con tu API REST en el backend</p>
+    </div>
+  </div>
+</body>
+</html>

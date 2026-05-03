@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Control de Acceso - Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1rem;
+    }
+
+    .login-logo-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-logo-subtitle {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .remember-forgot a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .remember-forgot a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3);
+    }
+
+    .users-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .users-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .user-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .btn-user {
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .btn-user:hover {
+      background: #f9fafb;
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .demo-note {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">🔐</div>
+        <div class="login-logo-title">SecureAccess</div>
+        <div class="login-logo-subtitle">Sistema de Control de Acceso</div>
+      </div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Usuario</label>
+          <input type="text" class="form-control" id="username" placeholder="Ingrese su usuario" value="guardia01" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" value="password123" required>
+        </div>
+
+        <div class="remember-forgot">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" style="cursor: pointer;">
+            Recuérdame
+          </label>
+          <a href="#">¿Olvidó su contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn-login">Acceder</button>
+      </form>
+
+      <div class="users-section">
+        <div class="users-title">Usuarios Demo</div>
+        <div class="user-buttons">
+          <button class="btn-user" onclick="setUser('guardia01', 'password123')">👮 Guardia</button>
+          <button class="btn-user" onclick="setUser('rrhh01', 'password123')">👔 RRHH</button>
+          <button class="btn-user" onclick="setUser('admin01', 'password123')">👨‍💼 Admin</button>
+          <button class="btn-user" onclick="setUser('empleado01', 'password123')">👨‍💻 Empleado</button>
+        </div>
+      </div>
+
+      <div class="demo-note">
+        💡 Selecciona un usuario demo o ingresa credenciales manualmente
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setUser(username, password) {
+      document.getElementById('username').value = username;
+      document.getElementById('password').value = password;
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      
+      // Determine role based on username
+      let role = 'empleado';
+      if (username.includes('guardia')) role = 'guardia';
+      else if (username.includes('rrhh')) role = 'rrhh';
+      else if (username.includes('admin')) role = 'admin';
+
+      // Redirect to appropriate dashboard
+      window.location.href = `${role}-dashboard.html`;
+    }
+  </script>
+</body>
+</html>
