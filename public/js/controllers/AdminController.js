@@ -1,4 +1,5 @@
 import { EstadoEdificioService } from '../services/EstadoEdificioService.js';
+import { EmpleadoService } from '../services/EmpleadoService.js';
 import { AdminUsuarioService } from '../services/AdminUsuarioService.js';
 import { CheckpointService } from '../services/CheckpointService.js';
 import { AuditLogService } from '../services/AuditLogService.js';
@@ -6,9 +7,12 @@ export class AdminController {
     constructor(view) {
         this.view = view;
         this.estadoEdificioService = EstadoEdificioService.getInstance();
+        this.empleadoService = new EmpleadoService();
         this.usuarioService = new AdminUsuarioService();
         this.checkpointService = new CheckpointService();
         this.auditService = new AuditLogService();
+        this.asistenciaData = [];
+        this.editingEmpleadoId = null;
         this.onEstadoEdificioChanged = (estado) => {
             this.view.renderEstadoEdificio(estado);
         };
@@ -19,8 +23,21 @@ export class AdminController {
         this.bindViewCallbacks();
         void this.estadoEdificioService.refresh();
         this.estadoEdificioService.startAutoRefresh(30);
+        this.setDefaultDateRange();
     }
     bindViewCallbacks() {
+        this.view.bindLoadEmpleados(() => {
+            void this.loadEmpleados();
+        });
+        this.view.bindSaveEmpleado(async (data, id) => {
+            await this.onSaveEmpleado(data, id);
+        });
+        this.view.bindEditEmpleado((id) => {
+            this.onEditEmpleado(id);
+        });
+        this.view.bindDeactivateEmpleado(async (id) => {
+            await this.onDeleteEmpleado(id);
+        });
         this.view.bindLoadUsuarios(() => {
             void this.loadUsuarios();
         });
@@ -41,6 +58,74 @@ export class AdminController {
         });
         this.view.bindDeleteCheckpoint(async (id) => {
             await this.deleteCheckpoint(id);
+        });
+    }
+    async loadEmpleados() {
+        try {
+            const empleados = await this.empleadoService.getAll();
+            this.view.renderEmpleadosTable(empleados);
+        }
+        catch (error) {
+            this.view.showError('No se pudo cargar la lista de empleados');
+        }
+    }
+    async onSaveEmpleado(data, id) {
+        try {
+            if (id) {
+                await this.empleadoService.update(id, data);
+                this.view.showSuccess('Empleado actualizado correctamente');
+            }
+            else {
+                await this.empleadoService.create(data);
+                this.view.showSuccess('Empleado creado correctamente');
+            }
+            this.view.closeEmpleadoModal();
+            await this.loadEmpleados();
+        }
+        catch (error) {
+            this.view.showError(error instanceof Error ? error.message : 'Error al guardar el empleado');
+        }
+    }
+    onEditEmpleado(id) {
+        this.editingEmpleadoId = id;
+        this.empleadoService
+            .getAll()
+            .then((empleados) => {
+            const emp = empleados.find((item) => item.id === id);
+            if (emp) {
+                this.view.openEmpleadoModal(emp);
+            }
+        })
+            .catch(() => {
+            this.view.showError('No se pudo cargar el empleado');
+        });
+    }
+    async onDeleteEmpleado(id) {
+        const confirmed = window.confirm('¿Desactivar este empleado?');
+        if (!confirmed)
+            return;
+        try {
+            await this.empleadoService.delete(id);
+            this.view.showSuccess('Empleado desactivado');
+            await this.loadEmpleados();
+        }
+        catch (error) {
+            this.view.showError(error instanceof Error ? error.message : 'Error al desactivar');
+        }
+    }
+    setDefaultDateRange() {
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0];
+        ['admin-asistencia-fecha-inicio', 'admin-puntualidad-fecha-inicio'].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el)
+                el.value = yesterday;
+        });
+        ['admin-asistencia-fecha-fin', 'admin-puntualidad-fecha-fin'].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el)
+                el.value = yesterday;
         });
     }
     async loadUsuarios() {

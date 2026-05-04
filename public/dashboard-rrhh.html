@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="./css/components.css" />
     <link rel="stylesheet" href="./css/responsive.css" />
   </head>
-  <body>
-    <header class="container-fluid py-3 border-bottom" style="background-color: var(--color-surface)">
+  <body class="app-shell">
+    <header class="container-fluid py-3 border-bottom app-header">
       <div class="container d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
           <strong class="app-title mb-0">ACME Corp</strong>
@@ -30,10 +30,10 @@
     </header>
 
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
-    <main class="container-fluid">
+    <main class="container-fluid app-main">
       <div class="row g-0">
-        <aside class="col-lg-2 border-end p-3" style="min-height: calc(100vh - 73px)">
-          <nav class="nav flex-column gap-2">
+        <aside class="col-lg-2 border-end p-3 sidebar" style="min-height: calc(100vh - 73px)">
+          <nav class="nav flex-column gap-2 sidebar-nav">
             <button class="btn btn-outline-primary text-start" data-section="dashboard" data-i18n="nav.dashboard">📊 Dashboard</button>
             <button class="btn btn-outline-primary text-start" data-section="empleados" data-i18n="rrhh.employees">👥 Empleados</button>
             <button class="btn btn-outline-primary text-start" data-section="asistencia" data-i18n="rrhh.reportAttendance">📋 Reporte de Asistencia</button>
@@ -42,7 +42,7 @@
           </nav>
         </aside>
 
-        <section class="col-lg-10 p-4" id="rrhh-root">
+        <section class="col-lg-10 p-4 main-content-area" id="rrhh-root">
           <section id="section-dashboard" class="rrhh-section">
             <div class="row g-3">
               <div class="col-md-3"><div class="card card-surface p-3"><div>Total empleados activos</div><strong id="card-total-empleados">0</strong></div></div>

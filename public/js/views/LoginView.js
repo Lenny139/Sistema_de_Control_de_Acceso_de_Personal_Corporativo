@@ -4,8 +4,8 @@ export class LoginView {
         if (!root) {
             return;
         }
-        root.innerHTML = `
-      <div class="card card-surface p-4">
+                root.innerHTML = `
+            <div class="card card-surface p-4 login-card">
         <h2 class="h5 mb-3" data-i18n="login.title">Iniciar sesión</h2>
         <form id="login-form" class="d-grid gap-3">
           <div>

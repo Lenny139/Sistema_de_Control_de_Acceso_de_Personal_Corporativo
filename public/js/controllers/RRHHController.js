@@ -144,17 +144,18 @@ export class RRHHController {
         }
     }
     setDefaultDateRange() {
-        const today = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split('T')[0];
         ['asistencia-fecha-inicio', 'puntualidad-fecha-inicio'].forEach((id) => {
             const el = document.getElementById(id);
             if (el)
-                el.value = weekAgo;
+                el.value = yesterday;
         });
         ['asistencia-fecha-fin', 'puntualidad-fecha-fin'].forEach((id) => {
             const el = document.getElementById(id);
             if (el)
-                el.value = today;
+                el.value = yesterday;
         });
     }
     destroy() {

@@ -1,10 +1,14 @@
 export class AdminView {
     constructor() {
+        this.empleadosData = [];
+        this.empleadoModalInstance = null;
         this.usuarioModalInstance = null;
         this.checkpointModalInstance = null;
     }
     render() {
         this.bindSidebarNavigation();
+        this.bindEmpleadoActions();
+        this.bindEmpleadoFilters();
         this.bindUsuarioActions();
         this.bindCheckpointActions();
         this.bindAuditoriaActions();
@@ -17,6 +21,18 @@ export class AdminView {
     }
     bindLoadAuditoria(fn) {
         this.onLoadAuditoria = fn;
+    }
+    bindLoadEmpleados(fn) {
+        this.onLoadEmpleados = fn;
+    }
+    bindSaveEmpleado(fn) {
+        this.onSaveEmpleado = fn;
+    }
+    bindEditEmpleado(fn) {
+        this.onEditEmpleado = fn;
+    }
+    bindDeactivateEmpleado(fn) {
+        this.onDeactivateEmpleado = fn;
     }
     bindCreateUsuario(fn) {
         this.onCreateUsuario = fn;
@@ -69,6 +85,12 @@ export class AdminView {
           </tr>
         `)
             .join('');
+    }
+    renderEmpleadosTable(empleados) {
+        this.empleadosData = empleados;
+        this.setText('admin-card-empleados', String(empleados.filter((x) => x.activo).length));
+        this.fillDepartamentoFilter(empleados);
+        this.renderEmpleadosRows(empleados);
     }
     renderAuditoria(logs) {
         const body = document.getElementById('admin-auditoria-body');
@@ -161,6 +183,9 @@ export class AdminView {
                 button.classList.add('active');
                 document.querySelectorAll('.admin-section').forEach((node) => node.classList.add('d-none'));
                 document.getElementById(`admin-section-${section}`)?.classList.remove('d-none');
+                if (section === 'empleados' && this.isEmptyTable('admin-empleados-table-body')) {
+                    this.onLoadEmpleados?.();
+                }
                 if (section === 'usuarios' && this.isEmptyTable('admin-usuarios-body')) {
                     this.onLoadUsuarios?.();
                 }
@@ -198,6 +223,59 @@ export class AdminView {
             this.onDeactivateUsuario?.(userId);
         });
     }
+    bindEmpleadoActions() {
+        const nuevoEmpleadoBtn = document.getElementById('admin-btn-nuevo-empleado');
+        const guardarEmpleadoBtn = document.getElementById('admin-btn-guardar-empleado');
+        const tableBody = document.getElementById('admin-empleados-table-body');
+        nuevoEmpleadoBtn?.addEventListener('click', () => this.openEmpleadoModal());
+        guardarEmpleadoBtn?.addEventListener('click', () => {
+            const payload = this.getEmpleadoFormPayload();
+            if (!payload) {
+                this.showError('Completa los campos requeridos del empleado');
+                return;
+            }
+            const idInput = document.getElementById('admin-form-emp-id');
+            const id = idInput?.value.trim() || undefined;
+            this.onSaveEmpleado?.(payload, id);
+        });
+        tableBody?.addEventListener('click', (event) => {
+            const target = event.target.closest('[data-action][data-emp-id]');
+            if (!target) {
+                return;
+            }
+            const action = target.dataset.action;
+            const empId = target.dataset.empId ?? '';
+            if (!empId) {
+                return;
+            }
+            if (action === 'edit') {
+                this.onEditEmpleado?.(empId);
+            }
+            if (action === 'deactivate') {
+                void this.onDeactivateEmpleado?.(empId);
+            }
+        });
+    }
+    bindEmpleadoFilters() {
+        const searchInput = document.getElementById('admin-empleado-search');
+        const departamentoSelect = document.getElementById('admin-filtro-departamento');
+        const estadoSelect = document.getElementById('admin-filtro-estado');
+        let debounceTimer = null;
+        searchInput?.addEventListener('input', () => {
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            debounceTimer = setTimeout(() => {
+                this.filterEmpleados(searchInput.value, departamentoSelect?.value, estadoSelect?.value);
+            }, 300);
+        });
+        departamentoSelect?.addEventListener('change', () => {
+            this.filterEmpleados(searchInput?.value ?? '', departamentoSelect.value, estadoSelect?.value);
+        });
+        estadoSelect?.addEventListener('change', () => {
+            this.filterEmpleados(searchInput?.value ?? '', departamentoSelect?.value, estadoSelect.value);
+        });
+    }
     bindCheckpointActions() {
         const nuevoCheckpointBtn = document.getElementById('btn-nuevo-checkpoint');
         const crearCheckpointBtn = document.getElementById('btn-crear-checkpoint');
@@ -228,6 +306,53 @@ export class AdminView {
         filterButton?.addEventListener('click', () => {
             this.onLoadAuditoria?.(this.getAuditFiltros());
         });
+    }
+    openEmpleadoModal(empleado) {
+        const form = document.getElementById('admin-empleado-form');
+        if (!form) {
+            return;
+        }
+        let idInput = document.getElementById('admin-form-emp-id');
+        if (!idInput) {
+            idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.id = 'admin-form-emp-id';
+            form.appendChild(idInput);
+        }
+        if (empleado) {
+            idInput.value = empleado.id;
+            this.setInputValue('admin-form-codigo', empleado.codigoEmpleado);
+            this.setInputValue('admin-form-nombre', empleado.nombre);
+            this.setInputValue('admin-form-apellido', empleado.apellido);
+            this.setInputValue('admin-form-departamento', empleado.departamento);
+            this.setInputValue('admin-form-cargo', empleado.cargo);
+            this.setInputValue('admin-form-hora-inicio', empleado.horarioLaboral?.horaInicio ?? '09:00');
+            this.setInputValue('admin-form-hora-fin', empleado.horarioLaboral?.horaFin ?? '17:00');
+        }
+        else {
+            idInput.value = '';
+            form.reset();
+            this.setInputValue('admin-form-hora-inicio', '09:00');
+            this.setInputValue('admin-form-hora-fin', '17:00');
+        }
+        const modal = this.getEmpleadoModalInstance();
+        if (modal) {
+            modal.show();
+        }
+    }
+    closeEmpleadoModal() {
+        const modal = this.getEmpleadoModalInstance();
+        if (modal) {
+            modal.hide();
+        }
+        const form = document.getElementById('admin-empleado-form');
+        if (form) {
+            form.reset();
+        }
+        const idInput = document.getElementById('admin-form-emp-id');
+        if (idInput) {
+            idInput.value = '';
+        }
     }
     getAuditFiltros() {
         const fechaInicio = this.getInputValue('audit-fecha-inicio');
@@ -266,6 +391,98 @@ export class AdminView {
         }
         this.checkpointModalInstance = new bootstrapApi.Modal(modalElement);
         return this.checkpointModalInstance;
+    }
+    getEmpleadoModalInstance() {
+        if (this.empleadoModalInstance) {
+            return this.empleadoModalInstance;
+        }
+        const modalElement = document.getElementById('admin-empleado-modal');
+        if (!modalElement) {
+            return null;
+        }
+        const bootstrapApi = window.bootstrap;
+        if (!bootstrapApi?.Modal) {
+            return null;
+        }
+        this.empleadoModalInstance = new bootstrapApi.Modal(modalElement);
+        return this.empleadoModalInstance;
+    }
+    filterEmpleados(query, departamento, estado) {
+        const normalizedQuery = (query ?? '').trim().toLowerCase();
+        const normalizedDepartamento = (departamento ?? '').trim().toLowerCase();
+        const normalizedEstado = (estado ?? '').trim().toLowerCase();
+        const filtered = this.empleadosData.filter((emp) => {
+            const matchesQuery = !normalizedQuery
+                ? true
+                : [emp.codigoEmpleado, emp.nombre, emp.apellido].some((value) => value.toLowerCase().includes(normalizedQuery));
+            const matchesDepartamento = !normalizedDepartamento
+                ? true
+                : emp.departamento.toLowerCase() === normalizedDepartamento;
+            const matchesEstado = !normalizedEstado
+                ? true
+                : normalizedEstado === 'activo'
+                    ? emp.activo
+                    : !emp.activo;
+            return matchesQuery && matchesDepartamento && matchesEstado;
+        });
+        this.renderEmpleadosRows(filtered);
+    }
+    fillDepartamentoFilter(empleados) {
+        const select = document.getElementById('admin-filtro-departamento');
+        if (!select) {
+            return;
+        }
+        const currentValue = select.value;
+        const departments = Array.from(new Set(empleados.map((emp) => emp.departamento))).sort();
+        select.innerHTML = ['<option value="">Departamento</option>', ...departments.map((dept) => `<option value="${dept}">${dept}</option>`)].join('');
+        select.value = currentValue;
+    }
+    renderEmpleadosRows(empleados) {
+        const body = document.getElementById('admin-empleados-table-body');
+        if (!body) {
+            return;
+        }
+        body.innerHTML = empleados
+            .map((empleado) => {
+            const horarioInicio = empleado.horarioLaboral?.horaInicio ?? '09:00';
+            const horarioFin = empleado.horarioLaboral?.horaFin ?? '17:00';
+            return `
+          <tr>
+            <td>${empleado.codigoEmpleado}</td>
+            <td>${empleado.nombre} ${empleado.apellido}</td>
+            <td>${empleado.departamento}</td>
+            <td>${empleado.cargo}</td>
+            <td>${horarioInicio}-${horarioFin}</td>
+            <td><span class="badge ${empleado.activo ? 'text-bg-success' : 'text-bg-secondary'}">${empleado.activo ? 'activo' : 'inactivo'}</span></td>
+            <td>
+              <button class="btn btn-outline-primary btn-sm" data-action="edit" data-emp-id="${empleado.id}">Editar</button>
+              <button class="btn btn-outline-danger btn-sm" data-action="deactivate" data-emp-id="${empleado.id}" ${!empleado.activo ? 'disabled' : ''}>Desactivar</button>
+            </td>
+          </tr>
+        `;
+        })
+            .join('');
+    }
+    getEmpleadoFormPayload() {
+        const codigo = this.getInputValue('admin-form-codigo');
+        const nombre = this.getInputValue('admin-form-nombre');
+        const apellido = this.getInputValue('admin-form-apellido');
+        const departamento = this.getInputValue('admin-form-departamento');
+        const cargo = this.getInputValue('admin-form-cargo');
+        const horaInicioLaboral = this.getInputValue('admin-form-hora-inicio') || '09:00';
+        const horaFinLaboral = this.getInputValue('admin-form-hora-fin') || '17:00';
+        if (!codigo || !nombre || !apellido || !departamento || !cargo) {
+            return null;
+        }
+        return {
+            codigoEmpleado: codigo,
+            nombre,
+            apellido,
+            departamento,
+            cargo,
+            horaInicioLaboral,
+            horaFinLaboral,
+        };
     }
     getUsuarioPayload() {
         const username = this.getInputValue('admin-form-username');
