@@ -1,18 +1,18 @@
-# 🔐 SecureAccess - Diseño UX/Mockup
+#  SecureAccess - Diseño UX/Mockup
 
 Este es un **diseño UX completo** del Sistema de Control de Acceso de Personal Corporativo, desarrollado como prototipo interactivo con datos estáticos.
 
-## 📋 Contenido
+##  Contenido
 
 El mockup incluye:
 
-- ✅ **Página de Login** - Autenticación con usuarios demo
-- ✅ **Dashboard Guardia** - Gestión de entrada/salida de empleados
-- ✅ **Dashboard RRHH** - Reportes de asistencia y puntualidad
-- ✅ **Dashboard Admin** - Administración del sistema completo
-- ✅ **Estilos CSS Modernos** - Diseño responsivo y profesional
+-  **Página de Login** - Autenticación con usuarios demo
+-  **Dashboard Guardia** - Gestión de entrada/salida de empleados
+-  **Dashboard RRHH** - Reportes de asistencia y puntualidad
+-  **Dashboard Admin** - Administración del sistema completo
+-  **Estilos CSS Modernos** - Diseño responsivo y profesional
 
-## 🚀 Cómo Usar
+##  Cómo Usar
 
 ### Opción 1: Abrir directamente en navegador
 
@@ -42,18 +42,18 @@ node -e "require('http').createServer((req, res) => require('fs').readFile('./' 
 
 Luego abre: `http://localhost:3000`
 
-## 📱 Usuarios Demo
+##  Usuarios Demo
 
 En la página de login puedes seleccionar cualquiera de estos usuarios:
 
 | Usuario | Contraseña | Rol |
 |---------|-----------|-----|
-| `guardia01` | `password123` | 👮 Guardia de Seguridad |
-| `rrhh01` | `password123` | 👔 Gerente de RRHH |
-| `admin01` | `password123` | 👨‍💼 Administrador |
-| `empleado01` | `password123` | 👨‍💻 Empleado |
+| `guardia01` | `password123` |  Guardia de Seguridad |
+| `rrhh01` | `password123` |  Gerente de RRHH |
+| `admin01` | `password123` | ‍ Administrador |
+| `empleado01` | `password123` | ‍ Empleado |
 
-## 🎨 Estructura del Diseño
+##  Estructura del Diseño
 
 ```
 ux-mockup/
@@ -65,9 +65,9 @@ ux-mockup/
 └── README.md              # Este archivo
 ```
 
-## 📊 Características por Rol
+##  Características por Rol
 
-### 👮 Guardia de Seguridad
+###  Guardia de Seguridad
 
 - **Dashboard Principal**: Vista en tiempo real de empleados presentes
 - **Búsqueda de Empleados**: Buscar por ID o nombre
@@ -81,7 +81,7 @@ ux-mockup/
   - Tardanzas (3)
   - Hora promedio check-in
 
-### 👔 Gerente de RRHH
+###  Gerente de RRHH
 
 - **Reportes Profesionales**:
   - Reporte de Asistencia (entrada/salida/horas trabajadas)
@@ -94,7 +94,7 @@ ux-mockup/
 - **Exportación**: Opción de exportar PDF
 - **Estadísticas**: Presentes, ausentes, tardanzas, asistencia del mes
 
-### 👨‍💼 Administrador
+### ‍ Administrador
 
 - **Gestión de Usuarios**:
   - Lista completa de usuarios del sistema
@@ -122,7 +122,7 @@ ux-mockup/
   - Espacio en base de datos
   - Opciones: Backup, Reportes, Mantenimiento
 
-## 🎯 Datos Estáticos Incluidos
+##  Datos Estáticos Incluidos
 
 ### Empleados Demo
 
@@ -148,7 +148,7 @@ ux-mockup/
 - Puerta Lateral (Torniquete)
 - Salida Emergencia (Puerta manual)
 
-## 🎨 Paleta de Colores
+##  Paleta de Colores
 
 ```css
 Primary: #2563eb (Azul)
@@ -158,7 +158,7 @@ Warning: #f59e0b (Naranja)
 Danger: #ef4444 (Rojo)
 ```
 
-## 💡 Elementos de Diseño
+##  Elementos de Diseño
 
 ### Componentes Reutilizables
 
@@ -179,15 +179,15 @@ Danger: #ef4444 (Rojo)
 - Loading spinner
 - Slide-in animations
 
-## 📱 Responsividad
+##  Responsividad
 
 El diseño es completamente responsivo y se adapta a:
 
-- 📱 Dispositivos móviles (320px+)
-- 📱 Tablets (768px+)
-- 🖥️ Desktops (1024px+)
+-  Dispositivos móviles (320px+)
+-  Tablets (768px+)
+-  Desktops (1024px+)
 
-## 🔧 Personalización
+##  Personalización
 
 Para modificar el diseño:
 
@@ -212,7 +212,7 @@ Edita las tablas HTML en cada dashboard para agregar más filas con datos.
 
 Busca y reemplaza directamente en los archivos HTML.
 
-## 🚀 Próximos Pasos para Implementación Real
+##  Próximos Pasos para Implementación Real
 
 Este mockup es la base para la implementación real. Para implementarlo:
 
@@ -222,25 +222,25 @@ Este mockup es la base para la implementación real. Para implementarlo:
 4. **Base de Datos**: Conectar con SQLite/PostgreSQL
 5. **Real-time**: Usar WebSockets para actualizaciones en tiempo real
 
-## 📝 Notas Importantes
+##  Notas Importantes
 
-- ✅ Este es un prototipo de UI/UX
-- ✅ Los datos son estáticos para demostración
-- ✅ La interactividad es limitada (fines educativos)
-- ✅ Diseño responsive y moderno
-- ✅ Compatible con navegadores modernos
+-  Este es un prototipo de UI/UX
+-  Los datos son estáticos para demostración
+-  La interactividad es limitada (fines educativos)
+-  Diseño responsive y moderno
+-  Compatible con navegadores modernos
 
-## 🌐 Navegadores Soportados
+##  Navegadores Soportados
 
 - Chrome/Chromium (recomendado)
 - Firefox
 - Safari
 - Edge
 
-## 📄 Licencia
+##  Licencia
 
 Este diseño es parte del proyecto "Sistema de Control de Acceso de Personal Corporativo".
 
 ---
 
-**¡Disfruta explorando el mockup del sistema!** 🎉
+**¡Disfruta explorando el mockup del sistema!** 
