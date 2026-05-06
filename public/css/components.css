@@ -203,15 +203,18 @@
   --bs-table-bg: transparent;
   --bs-table-border-color: var(--color-border);
 }
+.table>:not(caption)>*>* {
+  color: var(--color-text);
+}
 .table th {
   font-family: 'Exo 2', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-primary);
   border-bottom: 2px solid var(--color-primary);
 }
-.table td { font-size: 0.9rem; vertical-align: middle; }
+.table td { font-size: 1rem; vertical-align: middle; }
 
 /* ── MODALES ── */
 .modal-content {
