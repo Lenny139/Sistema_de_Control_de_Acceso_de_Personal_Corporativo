@@ -197,18 +197,31 @@ export class GuardiaView {
                     ? `Actualizado hace ${secs} segundos`
                     : `Actualizado hace ${Math.floor(secs / 60)} min`;
         }
+        const formatHora = (value) => {
+            if (!value) {
+                return '';
+            }
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return String(value);
+            }
+            return date.toTimeString().slice(0, 5);
+        };
         empleadosList.innerHTML =
             estado.presentes.length === 0
                 ? '<li class="list-group-item text-muted small">Sin empleados presentes</li>'
                 : estado.presentes
                     .map((item) => {
-                    const alerta = item.minutosEnInstalacion > 600;
+                    const minutos = item.minutosEnInstalaciones ?? item.minutosEnInstalacion ?? 0;
+                    const alerta = minutos > 600;
+                    const nombre = item.nombre ?? item.nombreCompleto ?? '';
+                    const hora = item.horaIngreso ?? formatHora(item.horaEntrada);
                     return `
             <li class="list-group-item presentes-list-item d-flex justify-content-between align-items-start ${alerta ? 'alerta-prolongada' : ''}">
               <div>
-                <div class="fw-semibold">${item.nombreCompleto}</div>
+                <div class="fw-semibold">${nombre}</div>
                 <div class="small text-muted">${item.departamento}</div>
-                <div class="small">Hora ${item.horaEntrada} · ${item.minutosEnInstalacion} min</div>
+                <div class="small">Hora ${hora} · ${minutos} min</div>
               </div>
               ${alerta ? '<span class="badge badge-tardanza">+10h</span>' : ''}
             </li>`;
