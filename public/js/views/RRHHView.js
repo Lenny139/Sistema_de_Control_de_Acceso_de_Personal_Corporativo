@@ -23,18 +23,19 @@ export class RRHHView {
         this.renderEmpleadosRows(empleados);
     }
     renderReporteAsistencia(rows) {
-        this.asistenciaData = rows;
+        const safeRows = Array.isArray(rows) ? rows : rows?.data ?? [];
+        this.asistenciaData = safeRows;
         const body = document.getElementById('tabla-asistencia-body');
         const totals = document.getElementById('totales-asistencia');
         if (!body || !totals) {
             return;
         }
-        body.innerHTML = rows
+        body.innerHTML = safeRows
             .map((row) => {
             const item = row;
             return `
           <tr>
-            <td>${String(item.nombreCompleto ?? '')}</td>
+            <td>${String(item.empleado ?? '')}</td>
             <td>${String(item.fecha ?? '')}</td>
             <td>${String(item.horaEntrada ?? '')}</td>
             <td>${String(item.horaSalida ?? '')}</td>
@@ -43,23 +44,24 @@ export class RRHHView {
         `;
         })
             .join('');
-        totals.textContent = `Registros: ${rows.length} · promedio de horas y dias presentes calculados en reporte`;
+        totals.textContent = `Registros: ${safeRows.length} · promedio de horas y dias presentes calculados en reporte`;
     }
     renderReportePuntualidad(rows) {
-        this.puntualidadData = rows;
+        const safeRows = Array.isArray(rows) ? rows : rows?.data ?? [];
+        this.puntualidadData = safeRows;
         const body = document.getElementById('tabla-puntualidad-body');
         const resumen = document.getElementById('resumen-puntualidad');
         if (!body || !resumen) {
             return;
         }
-        body.innerHTML = rows
-            .map((row) => {
-            const item = row;
-            const estado = String(item.estadoPuntualidad ?? '');
+                body.innerHTML = safeRows
+                        .map((row) => {
+                        const item = row;
+                        const estado = String(item.estado ?? item.estadoPuntualidad ?? '');
             const badgeClass = estado === 'PUNTUAL' ? 'text-bg-success' : estado === 'TARDANZA' ? 'text-bg-warning' : 'text-bg-danger';
             return `
           <tr>
-            <td>${String(item.nombreCompleto ?? '')}</td>
+            <td>${String(item.empleado ?? '')}</td>
             <td>${String(item.fecha ?? '')}</td>
             <td>${String(item.horaEntrada ?? '')}</td>
             <td>${String(item.horaLaboral ?? '')}</td>
@@ -69,8 +71,8 @@ export class RRHHView {
         `;
         })
             .join('');
-        const tardanzas = rows.filter((row) => row.estado === 'TARDANZA').length;
-        const ausencias = rows.filter((row) => row.estado === 'AUSENTE').length;
+                const tardanzas = safeRows.filter((row) => (row.estado ?? row.estadoPuntualidad) === 'TARDANZA').length;
+                const ausencias = safeRows.filter((row) => (row.estado ?? row.estadoPuntualidad) === 'AUSENTE').length;
         resumen.textContent = `${tardanzas} tardanzas, ${ausencias} ausencias en el periodo`;
         this.setText('card-tardanzas-hoy', String(tardanzas));
     }
