@@ -10,7 +10,9 @@ export class ReporteService {
             ...(params.empleado ? { empleadoId: params.empleado } : {}),
             ...(params.departamento ? { departamento: params.departamento } : {}),
         });
-        return this.api.get(`/reports/asistencia?${query.toString()}`);
+        return this.api
+            .get(`/reports/asistencia?${query.toString()}`)
+            .then((response) => (Array.isArray(response) ? response : response?.data ?? []));
     }
     getPuntualidad(params) {
         const query = new URLSearchParams({
@@ -19,6 +21,8 @@ export class ReporteService {
             ...(params.empleado ? { empleadoId: params.empleado } : {}),
             ...(params.departamento ? { departamento: params.departamento } : {}),
         });
-        return this.api.get(`/reports/puntualidad?${query.toString()}`);
+        return this.api
+            .get(`/reports/puntualidad?${query.toString()}`)
+            .then((response) => (Array.isArray(response) ? response : response?.data ?? []));
     }
 }
